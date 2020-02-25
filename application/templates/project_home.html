@@ -1,0 +1,109 @@
+{% extends "project_base.html" %}
+{% block title %}
+<title>Project</title>
+{% endblock %}
+
+{% block mainContent %}
+<div class="flex-fill d-flex flex-row overflow-hidden">
+    <!-- Left Panel -->
+    <div class="d-none d-md-block col-auto" style="width: 12rem;">
+        f
+    </div>
+
+    <!-- Main Panel -->
+    <div class="px-0 px-md-3 col d-flex flex-column overflow-hidden">
+        <div class="flex-fill bg-light shadow" style="background-color: rgba(255,255,255,0.8)!important; padding: 0.5rem;">
+            <div class="nav flex-wrap">
+                <a class="nav-link active" href="#">Participated</a>
+                <a class="nav-link" href="#">Managed</a>
+                <a class="nav-link" href="#">Open</a>
+                <a class="nav-link" href="#">All</a>
+                <div class="form-inline ml-auto">
+                    <label for="staticEmail2" class="form-lable">Filter: </label>
+                    <input type="text" class="form-control" />
+                </div>
+            </div>
+            <hr>
+            <div class="bg-light">
+                <div id="projectListPanel"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Right Panel -->
+    <div class="d-none col-auto" style="width: 0rem;">
+    </div>
+</div>
+{% endblock %}
+
+{% block pageStylesAndScripts %}
+<style>
+
+    .proj-nav {
+        display: flex;
+        flex-direction: row;
+    }
+</style>
+<script>
+    var vm;
+    function pageLoad() {
+        console.log("page initializing...");
+        vm = new Vue({
+            delimiters: ['{[', ']}'],
+            el: "#app",
+        })
+        let req =
+        {
+            function: "getProjects",
+        };
+        let rsp = $.ajax(
+            {
+                type: "POST",
+                url: "service",
+                contentType: "application/json",
+                data: JSON.stringify(req),
+                dataType: "json",
+                async: true,
+                context: this,
+                beforeSend: getProject_beforeCallback,
+                success: getProject_successCallback,
+                error: getProject_errorCallback,
+                complete: null,
+            }).responseJSON;
+    }
+    function getProject_beforeCallback() {
+
+    }
+    function getProject_successCallback(rsp) {
+        console.log(rsp);
+        siteMaster_renderTable(document.getElementById("projectListPanel"), rsp.projects,
+            {
+                fields:
+                    [
+                        { name: "code", title: "Project", style: "width:5em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;", template: function (data) { return `<a href="schedule?project=${data.code}">${data.code}</a>`; } },
+                        { name: "title", title: "Title", style: "width:auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" },
+                        {
+                            name: "pm", title: "PM", style: "width:5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;", template: function (data) {
+                                if ('pm' in data) { return data.pm; } else { return "-" }
+                            }
+                        },
+                        {
+                            name: "SE", title: "SE", style: "width:5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;", template: function (data) {
+                                if ('se' in data) { return data.se; } else { return "-" }
+                            }
+                        },
+                        { name: "status", title: "Status", style: "width:5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" },
+                    ],
+                responsive: true,
+            });
+    }
+    function getProject_errorCallback() {
+        console.log(`Fail to fetch data from the server!`)
+    }
+    function projectCodeColumnTemplate(data) {
+
+
+    }
+</script>
+{% endblock %}

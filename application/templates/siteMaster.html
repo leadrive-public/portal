@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head runat="server">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="author" content="jun.zhu@outlook.com" />
+    <meta name="revised" content="" />
+    <meta name="keywords" content="" />
+    <meta name="generator" content="" />
+    <meta name="description" content="" />
+    <!-- jQuery -->
+    <script src="/js/jquery-3.3.1.min.js"></script>
+    <script src="/js/jquery.cookie.js"></script>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="/css/bootstrap.css" />
+    <script src="/js/popper.js"></script>
+    <script src="/js/bootstrap.js"></script>
+
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="/fontawesome/all.min.css" />
+
+    <!-- Feather -->
+    <script src="/js/feather.min.js"></script>
+    
+    <!-- element-ui -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+
+    <!-- Custom styles and scripts -->
+    <link rel="stylesheet" href="/SiteMaster.css" />
+    <script src="/SiteMaster.js"></script>
+    {% block title %}
+    <title>Portal of LEADRIVE</title>
+    {% endblock %}
+    {% block pageStyles %}
+    {% endblock %}
+    {% block pageScripts %}
+    {% endblock %}
+</head>
+<body>
+{% block body %}
+    <!-- Background -->
+    {% block background %}
+    <div class="position-fixed vh-100 vw-100" style="background-color: transparent;background-image: url(/img/IMG_0353.jpg); background-size: cover;">
+    </div>
+    {% endblock %}
+    <!-- Header -->
+    {% block head %}
+    <header>
+    {% block headContent %}
+        <nav class="navbar navbar-expand-md navbar-transparent navbar-dark fixed-top">
+            <a class="navbar-brand" href="#">LEADRIVE</a>
+            <button class="navbar-toggler" aria-expanded="false" aria-controls="navbarCollapse" aria-label="Toggle navigation" type="button" data-target="#navbarCollapse" data-toggle="collapse">
+            <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                {% block navbarMenu %}
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item"><a class="nav-link" href="/Part/Home.aspx">QMS</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/Part/Home.aspx">PLM</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/Project/Home.aspx">Project</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/eTime/Home.aspx">eTime</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/IOI/Home.aspx">Library</a></li>
+                </ul>
+                {% endblock %}
+                <form class="form-inline mt-2 mt-md-0">
+                    <input class="form-control mr-sm-2 d-none" aria-label="Search" type="text" placeholder="Search">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                </form>
+                <div class="dropdown">
+                    <button type="button" class="btn btn-secondary" data-toggle="dropdown"  data-boundary="viewport">
+                        {% if displayName is defined%}
+                            {{ displayName }}
+                        {% else %}
+                            User
+                        {% endif %}
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <a class="dropdown-item disabled" href="/logout">User profile</a>
+                        <a class="dropdown-item" href="/logout">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    {% endblock %}
+    </header>
+    {% endblock %}
+    
+    <!-- Main -->
+    {% block main %}
+    <main>
+        {% block mainContent %}
+        {% endblock %}
+    </main>
+    {% endblock %}
+    
+    <!-- Footer -->
+    {% block footer %}
+    <footer>
+    {% block footerContent %}
+        <div class="container-fluid fixed-bottom">
+            <div class="row">
+                <div class="col">
+                    <hr />
+                    <p class="small text-center text-light">&copy; 2019 - LEADRIVE TECHNOLOGY CO., LTD</p>
+                </div>
+            </div>
+        </div>
+    {% endblock %}
+    </footer>
+    {% endblock %}
+    
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    
+    {% block footerScript %}
+    {% endblock %}
+    
+{% endblock %}
+</body>
+</html>

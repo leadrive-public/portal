@@ -1,0 +1,103 @@
+.et-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+}
+
+.et-weekspan {
+    padding: 0.5rem;
+}
+
+.et-codeHeader, .et-codeCell {
+    width: 12em;
+    max-width: 20em;
+    min-width: 10em;
+    overflow: hidden;
+}
+
+.et-taskHeader, .et-taskCell {
+    width: 12em;
+    max-width: 20em;
+    min-width: 10em;
+    overflow: hidden;
+}
+
+.et-hourHeader, .et-hourCell {
+    min-width: 4rem;
+    max-width: 4rem;
+    overflow: hidden;
+}
+
+.et-codeHeader, .et-taskHeader, .et-hourHeader {
+    text-align: center;
+    padding: 0.5rem;
+}
+
+.et-codeCell, .et-taskCell, .et-hourCell {
+    /*border-top: 1px solid lightgray;
+    border-bottom: 1px solid lightgray;
+    border-left: none;
+    border-right: none;
+    border-top: none;
+    border-bottom:none;
+    padding: 0.5rem;*/
+}
+
+.et-codeInput, .et-taskInput, .et-hourInput {
+    /*
+    display: flex;
+    flex-direction: row;
+    width: 97%;
+    overflow: hidden;
+    border: 1px solid lightgray;
+    align-items: stretch;
+    justify-content: stretch;
+    align-content: stretch;*/
+}
+
+    .et-codeInput input, .et-taskInput input, .et-hourInput input {
+        /*
+        flex-grow: 1;
+        flex-shrink: 1;
+        flex-basis: auto;
+        width: 100%;
+        border: none;
+        margin: 0;
+        padding: 0.375rem 0.75rem;*/
+    }
+
+    .et-hourInput input {
+        text-align: center;
+    }
+
+    .et-codeInput button, .et-taskInput button {
+        background-color: lightgray;
+        border: none;
+        color:gray;
+    }
+    .et-codeInput input, .et-taskInput input {
+        background-color: lightgray;
+    }
+
+        .et-codeInput button:hover, .et-taskInput button:hover {
+            background-color: gray;
+            color: white;
+        }
+
+        .et-codeInput button i.icon, .et-taskInput button i.icon {
+            margin: 0;
+        }
+
+.et-addcell{
+    padding:0.5rem;
+}
+.et-totalcell {
+    padding: 0.5rem;
+    text-align:center;
+}
+.et-bg-danger {
+    background-color: #B03060 !important;
+}
+.et-codeModal{
+
+}

@@ -1,0 +1,253 @@
+import sqlite3
+import os
+import flask
+import json
+import time
+from datetime import datetime
+from datetime import timedelta
+
+from ..project import service as projectService
+
+def databaseFilePath():
+    return os.path.join(os.path.dirname(__file__),'../database/etime.sqlite3')
+
+def getEtimes(code="",user=0, timespan=None):
+    etimes=[]
+    try:
+        conn=sqlite3.connect(databaseFilePath())
+        cursor=conn.cursor()
+    except Exception as e:
+        print(e)
+        return None
+    try:
+        if code!="":
+            if user>0:
+                cmd='select user, code, task, hours, occurDate from etimes where code="{}" and user={}'.format(code,user)
+            else:
+                cmd='select user, code, task, hours, occurDate from etimes where code="{}"'.format(code)
+        else:
+            if user>0:
+                cmd='select user, code, task, hours, occurDate from etimes where user={}'.format(user)
+            else:
+                cmd='select user, code, task, hours, occurDate from etimes'
+        cursor.execute(cmd)
+        for row in cursor:
+            occurDate=datetime.strptime(row[4],'%Y-%m-%d').date()
+            if timespan is not None:
+                if 'startDate' in timespan:
+                    if occurDate<timespan['startDate']:
+                        continue
+                if 'endDate' in timespan:
+                    if occurDate>timespan['endDate']:
+                        continue
+            etime={}
+            etime['user']=row[0]
+            etime['code']=row[1]
+            etime['task']=row[2]
+            etime['hours']=row[3]
+            etime['occurDate']=datetime.strftime(occurDate,'%Y-%m-%d')
+            etimes.append(etime)
+    except Exception as e:
+        print(e)
+        return None
+    finally:
+        conn.close()
+    return etimes
+
+def getMyEditableEtimes(user):
+    editableSpan=getEditableSpan()
+    print(editableSpan)
+    return None
+
+def fillTaskTitle(etimes):
+    if etimes is None:
+        return
+    localTasks=getLocalTasks()
+    projectTasks=getProjectTasks()
+    for etime in etimes:
+        if etime['task']==0:
+            etime['taskTitle']='非特定任务'
+            continue
+        etime['taskTitle']=''
+        if etime['code'].startswith('PJ-'):
+            for task in projectTasks:
+                if etime['task']==task['number'] and etime['code']==task['code']:
+                    etime['taskTitle']=task['title']
+                    break
+        else:
+            for task in localTasks:
+                if etime['task']==task['number'] and etime['code']==task['code']:
+                    etime['taskTitle']=task['title']
+                    break
+
+def getEditableSpan():
+    today=datetime.utcnow().date()
+    result={
+        0: ( 0, 6),
+        1: (-1, 5),
+        2: (-2, 4),
+        3: (-3, 3),
+        4: (-4, 2),
+        5: ( 2, 8),
+        6: ( 1, 7),
+    }
+    startDate= today+timedelta(days=result[today.weekday()][0])
+    endDate  = today+timedelta(days=result[today.weekday()][1])
+    return {'startDate': startDate, 'endDate': endDate}
+
+def getCodes():
+    codes=[]
+    try:
+        conn=sqlite3.connect(databaseFilePath())
+        cursor=conn.cursor()
+        cmd='select code, title, status from codes'
+        cursor.execute(cmd)
+        for row in cursor:
+            code={}
+            code['code']=row[0]
+            code['title']=row[1]
+            code['status']=row[2]
+            codes.append(code)
+    except Exception as e:
+        print(e)
+        return None
+    finally:
+        if conn is not None:
+            conn.close()
+    # get codes from the project
+    print('get codes from the project')
+    projects=projectService.getProjects(metadatas=['status'])
+    if projects is not None:
+        print(projects)
+        for project in projects:
+            #print(project)
+            code={}
+            code['code']='PJ-'+project['code']
+            code['title']=project['title']
+            code['status']=project['status']
+            if code['status'] is None:
+                code['status']='closed'
+            if code['status']=='':
+                code['status']='closed'
+            if code['status']=='closed':
+                code['status']='closed'
+            else:
+                code['status']='open'
+            codes.append(code)
+    # return
+    return codes
+
+def getTasks(code=''):
+    tasks=[]
+    if code=='':
+        tasks.extend(getLocalTasks())
+        tasks.extend(getProjectTasks())
+    elif code.startswith('PJ-'):
+        tasks.extend(getProjectTasks(code))
+    else:
+        tasks.extend(getLocalTasks(code))
+    return tasks
+
+def getLocalTasks(code=''):
+    tasks=[]
+    try:
+        conn=sqlite3.connect(databaseFilePath())
+        cursor=conn.cursor()
+        if code!="":
+            cmd='select id, code, number, title, status from tasks where code="{}"'.format(code)
+        else:
+            cmd='select id, code, number, title, status from tasks'
+        cursor.execute(cmd)
+        for row in cursor:
+            task={}
+            task['id']=row[0]
+            task['code']=row[1]
+            task['number']=row[2]
+            task['title']=row[3]
+            task['status']=row[4]
+            tasks.append(task)
+    except Exception as e:
+        print(e)
+        return None
+    finally:
+        if conn is not None:
+            conn.close()
+    return tasks
+
+def getProjectTasks(code=''):
+    print('getProjectTasks')
+    tasks=[]
+    if code=='':
+        projectId=0
+    elif code.startswith('PJ-'):
+        projectId=-1
+        projectCode=code[3:]
+        projects=projectService.getProjects()
+        for project in projects:
+            if project['code']==projectCode:
+                projectId=project['id']
+                break
+        if projectId==-1:
+            return []
+        projectTasks=projectService.getTasks(project=projectId, metadatas=['status'])
+        for projectTask in projectTasks:
+            task={}
+            task['id']=projectTask['id']
+            task['code']=code
+            task['number']=projectTask['number']
+            task['title']=projectTask['title']
+            task['status']=project['status']
+            if task['status'] is None:
+                task['status']='closed'
+            elif task['status']=='':
+                task['status']='closed'
+            elif task['status']=='closed':
+                task['status']='closed'
+            else:
+                task['status']='open'
+            tasks.append(task)
+    else:
+        return []
+    # print('getProjectTasks')
+    return tasks
+    
+def delEtimes(user, timespan):
+    try:
+        conn=sqlite3.connect(databaseFilePath())
+        cursor=conn.cursor()
+        startDateStr=datetime.strftime(timespan['startDate'],'%Y-%m-%d')
+        endDateStr=datetime.strftime(timespan['endDate'],'%Y-%m-%d')
+        cmd='delete from etimes where user={} and occurDate>="{}" and occurDate<="{}"'.format(user, startDateStr, endDateStr)
+        print(cmd)
+        cursor.execute(cmd)
+        conn.commit()
+    except Exception as e:
+        print(str(e))
+        return
+    finally:
+        if conn is not None:
+            conn.close()
+    return
+
+def setEtimes(etimes):
+    try:
+        conn=sqlite3.connect(databaseFilePath())
+        cursor=conn.cursor()
+        for etime in etimes:
+            user=etime['user']
+            code=etime['code']
+            task=etime['task']
+            hours=etime['hours']
+            occurDate=etime['occurDate']
+            cmd='insert into etimes (user, code, task, hours, occurDate) values({},"{}",{},{},"{}")'.format(user, code, task, hours, occurDate)
+            cursor.execute(cmd)
+        conn.commit()
+    except Exception as e:
+        print(e)
+        return
+    finally:
+        if conn is not None:
+            conn.close()
+    return
+
+

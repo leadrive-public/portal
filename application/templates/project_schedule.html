@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block title %}
+<title>Project</title>
+{% endblock %}
+
+{% block navbarBrand %}
+<a class="navbar-brand">Project</a>
+{% endblock %}
+
+{% block navbarMenuContent %}
+<li class="nav-item"><a class="nav-link" href="/project">Home</a></li>
+<li class="nav-item"><a class="nav-link" href="/project/admin">Admin</a></li>
+{% endblock %}
+
+{% block mainContent %}
+<div class="flex-fill d-flex flex-row overflow-hidden">
+    <!-- Left Panel -->
+    <div class="d-none col-auto" style="width: 0;"></div>
+
+    <!-- Main Panel -->
+    <div class="px-0 col d-flex flex-column overflow-hidden">
+        <div class="flex-fill bg-light shadow" style="background-color: rgba(255,255,255,0.9)!important; padding: 1rem;">
+            <div id="app">
+                <ganttchart-editor :project="project" :etimes="etimes" :estaffings="estaffings" :users="users"></ganttchart-editor>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Panel -->
+    <div class="d-none col-auto" style="width: 0rem;"></div>
+</div>
+{% endblock %}
+
+{% block pageStylesAndScripts %}
+<link rel="stylesheet" href="/project.css">
+<script src="/project.js"></script>
+<script>
+    var vm;
+    var project=null;
+
+    function pageLoad() {
+        let projectCode = siteMaster_getQueryString("project")
+        // get project schedule
+        let req ={
+            function: "getProjectSchedule",
+            projectCode: projectCode,
+        };
+        let rsp = $.ajax({
+            type: "POST",
+            url: "service",
+            contentType: "application/json",
+            data: JSON.stringify(req),
+            dataType: "json",
+            async: true,
+            context: this,
+            beforeSend: null,
+            success: getProjectSchedule_successCallback,
+            error: getProjectSchedule_errorCallback,
+            complete: null,
+        }).responseJSON;
+        // get etimes
+        req ={
+            function: "getEtimes",
+            code: ("PJ-"+projectCode).toUpperCase(),
+        };
+        rsp = $.ajax({
+            type: "POST",
+            url: "/etime/service",
+            contentType: "application/json",
+            data: JSON.stringify(req),
+            dataType: "json",
+            async: true,
+            context: this,
+            beforeSend: null,
+            success: getEtimes_successCallback,
+            error: getEtimes_errorCallback,
+            complete: null,
+        }).responseJSON;
+        // get users
+        req ={
+            function: "getUsers",
+            code: ("PJ-"+projectCode).toUpperCase(),
+        };
+        rsp = $.ajax({
+            type: "POST",
+            url: "/user/service",
+            contentType: "application/json",
+            data: JSON.stringify(req),
+            dataType: "json",
+            async: true,
+            context: this,
+            beforeSend: null,
+            success: getUsers_successCallback,
+            error: getUsers_errorCallback,
+            complete: null,
+        }).responseJSON;
+        // Vue
+        vm=new Vue({
+            delimiters: ['{[', ']}'],
+            data:{
+                project: {code: "test", duration:{start: "2020-01-01", end: "2020-02-02"}},
+                etimes:[],
+                estaffings:[],
+                users:[],
+            },
+            el: '#vueapp',
+        });
+    }
+    function getProjectSchedule_successCallback(rsp) {
+        console.info((new Date()).toTimeString()+": Success to get project schedule data from the server!");
+        console.log(rsp);
+        vm.project=rsp.project;
+    }
+    function getProjectSchedule_errorCallback() {
+        console.error(`Fail to fetch project schedule data from the server!`);
+    }
+    function getEtimes_successCallback(rsp){
+        console.info((new Date()).toTimeString()+": Success to get etime data from the server!");
+        console.log(rsp)
+        vm.etimes=rsp.etimes;
+    }
+    function getEtimes_errorCallback(){
+        console.error(`Fail to fetch etimes data from the server!`);
+    }
+    function getUsers_successCallback(rsp){
+        console.info((new Date()).toTimeString()+": Success to get user data from the server!");
+        console.log(rsp)
+        vm.users=rsp.users;
+    }
+    function getUsers_errorCallback(){
+        console.error(`Fail to fetch users data from the server!`);
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends "project_base.html" %}
+{% block title %}
+<title>eTime</title>
+{% endblock %}
+
+{% block navbarBrand %}
+<a class="navbar-brand">eTime</a>
+{% endblock %}
+
+{% block navbarMenuContent %}
+<li class="nav-item"><a class="nav-link" href="/etime/ioi">IOI</a></li>
+{% endblock %}
+
+{% block mainContent %}
+<div class="flex-fill d-flex flex-row overflow-hidden">
+    <!-- Left Panel -->
+    <div class="d-none d-md-block col-auto" style="width: 12rem;">
+        <div class="nav flex-column" role="tablist">
+            <a class="nav-link text-white font-weight-bold " role="tab">Home</a>
+            <a class="nav-link text-white-50" role="tab" href="/etime/history">History</a>
+            <a class="nav-link text-white-50" role="tab" href="/etime/statistics">Statistics</a>
+        </div>
+    </div>
+
+    <!-- Main Panel -->
+    <div class="col d-flex flex-column overflow-hidden">
+        <div class="flex-fill bg-light shadow" style="background-color: rgba(255,255,255,0.8)!important; padding: 0.5rem;">
+            <et-editor :etimes="etimes" :timespan="timespan"></et-editor>
+        </div>
+    </div>
+
+    <!-- Right Panel -->
+    <div class="d-none col-auto" style="width: 0rem;">
+    </div>
+</div>
+{% endblock %}
+
+{% block pageStylesAndScripts %}
+<link rel="stylesheet" href="/etime.css">
+<script src="/etime.js"></script>
+<script>
+    var vm;
+    function pageLoad() {
+
+        let req = {
+            function: "getMyEditableEtimes",
+        };
+        let rsp = $.ajax({
+            type: "POST",
+            url: "/etime/service",
+            contentType: "application/json",
+            data: JSON.stringify(req),
+            dataType: "json",
+            async: true,
+            context: this,
+            beforeSend: null,
+            success: getMyEditableEtimes_successCallback,
+            error: getMyEditableEtimes_errorCallback,
+            complete: null,
+        }).responseJSON;
+        vm = new Vue({
+            delimiters: ['{[', ']}'],
+            el: '#vueapp',
+            data: function () {
+                return {
+                    etimes: null,
+                    timespan: null,
+                }
+            }
+        });
+    }
+    function getMyEditableEtimes_successCallback(rsp) {
+        console.info((new Date()).toTimeString() + ": Success to get etime data from the server!");
+        console.log(rsp)
+        vm.etimes = rsp.etimes;
+        vm.timespan = rsp.timespan;
+    }
+    function getMyEditableEtimes_errorCallback(e) {
+        console.error(`Fail to fetch etimes data from the server!`);
+    }
+
+</script>
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}
+<title>eStaffing</title>
+{% endblock %}
+
+{% block navbarBrand %}
+<a class="navbar-brand">eStaffing</a>
+{% endblock %}
+
+{% block navbarMenuContent %}
+<li class="nav-item"><a class="nav-link" href="/etime">eTime</a></li>
+{% endblock %}
+
+{% block mainContent %}
+<div class="flex-fill d-flex flex-row overflow-hidden">
+    <!-- Left Panel -->
+    <div class="d-none col-auto" style="width: 0;"></div>
+
+    <!-- Main Panel -->
+    <div class="col d-flex flex-column overflow-hidden">
+        <div class="flex-fill bg-light shadow" style="background-color: rgba(255,255,255,0.9)!important; padding: 1rem;">
+            <div id="app">
+                <es-editor :estaffings="estaffings"></es-editor>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Panel -->
+    <div class="d-none col-auto" style="width: 0rem;"></div>
+</div>
+{% endblock %}
+
+{% block pageStylesAndScripts %}
+<link rel="stylesheet" href="/estaffing.css">
+<script src="/estaffing.js"></script>
+<script>
+    var vm;
+
+    function pageLoad() {
+        // get project schedule
+        let req ={
+            function: "getEstaffings",
+        };
+        let rsp = $.ajax({
+            type: "POST",
+            url: "service",
+            contentType: "application/json",
+            data: JSON.stringify(req),
+            dataType: "json",
+            async: true,
+            context: this,
+            beforeSend: null,
+            success: getEstaffing_successCallback,
+            error: getEstaffing_errorCallback,
+            complete: null,
+        }).responseJSON;
+        // Vue
+        vm=new Vue({
+            delimiters: ['{[', ']}'],
+            data:{
+                estaffings: null,
+            },
+            el: '#vueapp',
+        });
+    }
+    function getEstaffing_successCallback(rsp) {
+        console.info((new Date()).toTimeString()+": Success to get estaffing data from the server!");
+        console.log(rsp);
+        if('estaffings' in rsp) vm.estaffings=rsp.estaffings;
+    }
+    function getEstaffing_errorCallback() {
+        console.error(`Fail to fetch estaffing data from the server!`);
+    }
+</script>
+{% endblock %}

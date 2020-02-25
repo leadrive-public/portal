@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0, user-scalable=no" />
+
+    <meta name="author" content="jun.zhu@outlook.com" />
+    <meta name="revised" content="" />
+    <meta name="keywords" content="" />
+    <meta name="generator" content="" />
+    <meta name="description" content="" />
+
+    {% block title %}
+    <title>Portal of LEADRIVE</title>
+    {% endblock %}
+
+    <!-- jQuery -->
+    <script src="/jquery/jquery-3.4.1.js"></script>
+    <!-- semantic -->
+    <link rel="stylesheet" href="/semantic-ui/components/icon.css" />
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="/bootstrap/bootstrap.css" />
+    <script src="/bootstrap/bootstrap.bundle.js"></script>
+    <script src="/bootstrap/bootstrap.js"></script>
+    <script src="/bootstrap/popper.min.js"></script>
+    <!-- Vue Related -->
+    <script src="/js/vue.min.js"></script>
+    <script src="/js/axios.min.js"></script>
+    <!-- sitemaster styles and scripts -->
+    <link rel="stylesheet" href="/SiteMaster.css" />
+    <script src="/SiteMaster.js"></script>
+    <!-- page styles and scripts -->
+    {% block pageStylesAndScripts %}
+    {% endblock %}
+</head>
+<body>
+    {% block body %}
+    <!-- Background -->
+    {% block background %}
+    <div class="siteMaster-bg"></div>
+    {% endblock %}
+
+    <!-- Content container -->
+    <div class="siteMaster-bodyContainer vh-100-sm" id="vueapp">
+        <!-- Header -->
+        {% block header %}
+        <header>
+            <nav class="navbar navbar-expand-sm navbar-transparent navbar-dark">
+                <button class="navbar-appBtn" onclick="siteMaster_appBtn_clickHandler()">
+                    <span class="navbar-appBtn-icon"></span>
+                </button>
+                <script>
+                    function siteMaster_appBtn_clickHandler(){
+                        $('#sidebar-modal').modal("show");
+                    }
+                </script>
+                {% block navbarBrand %}
+                <a class="navbar-brand">LEADRIVE</a>
+                {% endblock %}
+                <button class="navbar-toggler" aria-expanded="false" aria-controls="navbarCollapse" aria-label="Toggle navigation" type="button" data-target="#navbarCollapse" data-toggle="collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarCollapse">
+                    {% block navbarMenu %}
+                    <ul class="navbar-nav mr-auto">
+                        {% block navbarMenuContent %}
+                        <li class="nav-item"><a class="nav-link" href="/Part/Home.aspx">QMS</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/Part/Home.aspx">PLM</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/Project/Home.aspx">Project</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/eTime/Home.aspx">eTime</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/IOI/Home.aspx">Library</a></li>
+                        {% endblock %}
+                    </ul>
+                    {% endblock %}
+                    {% block userButton %}
+                    <div class="dropdown">
+                        {% if displayName is defined%}
+                        <button type="button" class="btn btn-success btn-circular" id="userDropdownMenuButton" data-toggle="dropdown" data-boundary="viewport" aria-haspopup="true" aria-expanded="false">
+                            <i class="user icon"></i>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdownMenuButton">
+                            <a class="dropdown-item disabled" href="/logout">{{displayName}}'s profile</a>
+                            <a class="dropdown-item " href="/logout">Logout</a>
+                        </div>
+                        {% else %}
+                        <script>
+                            function sitemaster_directToLogin(){
+                                window.location = "/login";
+                            }
+                        </script>
+                        <button type="button" class="btn btn-secondary btn-circular" id="userDropdownMenuButton" onclick="sitemaster_directToLogin()">
+                            <i class="user icon"></i>
+                        </button>
+                        {% endif %}
+                    </div>
+                    {% endblock %}
+                </div>
+            </nav>
+
+        </header>
+        {% endblock %}
+        <!-- Main -->
+        {% block main %}
+        <main class="siteMaster-mainContainer">
+            {% block mainContent %}
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col">
+                        <div>f</div>
+                        <div>f</div>
+                        <div>f</div>
+                        <div>f</div>
+                        <div>f</div>
+                        <div>f</div>
+                        <div>f</div>
+                        <div>f</div>
+                        <div>f</div>
+                        <div>f</div>
+                        <div>f</div>
+                        <div>f</div>
+                        <div>f</div>
+                        <div>f</div>
+                        <div>f</div>
+                        <div>f</div>
+                        <div>f</div>
+                        <div>f</div>
+                    </div>
+                </div>
+            </div>
+            {% endblock %}
+        </main>
+        {% endblock %}
+
+        <!-- Footer -->
+        {% block footer %}
+        <footer>
+            {% block footerContent %}
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col">
+                        <hr />
+                        <p class="small text-center text-light">&copy; 2019 - LEADRIVE TECHNOLOGY CO., LTD</p>
+                    </div>
+                </div>
+            </div>
+            {% endblock %}
+        </footer>
+        {% endblock %}
+    </div>
+    {% endblock %}
+    <div class="modal" id="sidebar-modal" role="dialog">
+        <div class="modal-dialog" role="document" style="margin-top: 0; margin-left: 0; margin-bottom: 0; width:10rem; height: 100%; display: flex;">
+            <div class="modal-content" style="background-color: black;border: none; border-radius: 0;">
+                <div class="modal-body p-0">
+                    <div class="text-light px-2 py-1"><a href="/" class="text-light text-decoration-none"><i class="home icon"></i>HOME</a></div>
+                    <hr  style="border: none; height: 1px; background-color:darkgray; margin: 0.25rem 0;"/>
+                    <div class="text-light px-2 py-1">QMS</div>
+                    <div class="small px-2 py-1"><a class="text-muted text-decoration-none">Daily Operation</a></div>
+                    <div class="small px-2 py-1"><a class="text-muted text-decoration-none">ENG & MFG</a></div>
+                    <div class="text-light px-2 py-1">Tools</div>
+                    <div class="small px-2 py-1"><a href="/project" class="text-muted text-decoration-none">Project</a></div>
+                    <div class="small px-2 py-1"><a href="/etime" class="text-muted text-decoration-none">eTime</a></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% block footerScript %}
+    <script>
+        try {
+            console.info((new Date()).toTimeString()+"page initializing...");
+            pageLoad();
+        }
+        catch(e)  {
+            console.warn(e)
+        }
+    </script>
+    {% endblock %}
+</body>
+</html>
