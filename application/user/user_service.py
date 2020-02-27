@@ -40,7 +40,7 @@ def getUserByName(name):
 
 def getUserById(id):
     try:
-        conn=sqlite3.connect('user.sqlite3')
+        conn=sqlite3.connect(databaseFilePath())
     except:
         return None
     try:

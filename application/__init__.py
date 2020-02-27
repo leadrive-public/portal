@@ -19,7 +19,8 @@ def create_app():
 
     @loginManager.user_loader
     def load_user(id):
-        return userService.getUserById(id)
+        user=userService.getUserById(id)
+        return user
 
     app.register_blueprint(qms.bp, url_prefix='/qms')
     app.register_blueprint(project.bp, url_prefix='/project')
@@ -27,12 +28,13 @@ def create_app():
     app.register_blueprint(etime.bp,  url_prefix='/etime')
     app.register_blueprint(estaffing.bp,  url_prefix='/estaffing')
 
+    # /
     @app.route('/')
     @flask_login.login_required
     def default():
-        print(flask_login.current_user)
-        if flask_login.current_user.is_authenticated:
-            return flask.redirect('/dashboard')
+        user=flask_login.current_user
+        if user.is_authenticated:
+            return flask.render_template("dashboard.html", user=user)
         else:
             return flask.redirect('/login')
         return 'default'
@@ -75,10 +77,4 @@ def create_app():
         flask_login.logout_user()
         return flask.redirect('/login')
 
-    @app.route('/dashboard')
-    @flask_login.login_required
-    def dashboard():
-        user=flask_login.current_user
-        return flask.render_template("dashboard.html", displayName=user.displayName)
-        
     return app

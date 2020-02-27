@@ -1,0 +1,26 @@
+.pj-pjCell, .pj-titleCell, .pj-pmCell, .pj-seCell, .pj-statusCell, .pj-stageCell, .pj-progressCell, .pj-activityCell{
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    white-space: nowrap;
+}
+.pj-pjCell{
+    width:5rem; 
+}
+.pj-titleCell{
+    width:auto;
+}
+.pj-pmCell, .pj-seCell{
+    width:5rem;
+}
+.pj-statusCell{
+    width:5rem;
+} 
+.pj-stageCell{
+    width:5rem;
+} 
+.pj-progressCell{
+    width:5rem;
+} 
+.pj-activityCell{
+    width:5rem;
+}

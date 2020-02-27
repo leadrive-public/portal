@@ -9,22 +9,49 @@ from .. import user as userService
 
 bp = flask.Blueprint('project', __name__, url_prefix='/project')
 
+def basePath():
+    return os.path.dirname(__file__)
+
 @bp.route('/')
-def default():
-    return flask.render_template('project_home.html')
-
-@bp.route('/new')
 @flask_login.login_required
-def projectNew():
-    return 'project home'
+def default():
+    user=flask_login.current_user
+    return flask.render_template('project_list.html', user=user, list='all')
 
-@bp.route('/schedule')
-def projectSchedule():
-    return flask.render_template('project_schedule.html')
+@bp.route('/participated')
+@flask_login.login_required
+def participated():
+    user=flask_login.current_user
+    return flask.render_template('project_list.html', user=user, list='participated')
+
+@bp.route('/managed')
+@flask_login.login_required
+def managed():
+    user=flask_login.current_user
+    return flask.render_template('project_list.html', user=user, list='managed')
+
+@bp.route('/all')
+@flask_login.login_required
+def all():
+    user=flask_login.current_user
+    return flask.render_template('project_list.html', user=user, list='all')
+
+# @bp.route('/new')
+# @flask_login.login_required
+# def projectNew():
+#     return 'project home'
+
+# @bp.route('/schedule')
+# @flask_login.login_required
+# def projectSchedule():
+#     user=flask_login.current_user
+#     return flask.render_template('project_list.html', user=user)
 
 @bp.route('/<string:projectCode>')
+@flask_login.login_required
 def projectDashboard(projectCode):
-    return projectCode
+    user=flask_login.current_user
+    return flask.render_template('project_schedule.html', user=user, projectCode=projectCode)
 
 @bp.route('/service', methods=['POST','GET'])
 def webService():
@@ -45,7 +72,7 @@ def webService():
     return flask.jsonify(rsp)
 
 def __service_getProjects(req):
-    projects=service.getProjects(metadatas=['status','pm','se'])
+    projects=service.getProjects(metadatas=['status','pm','se','stage','budget'])
     if projects is None:
         projects=[]
     return {'isSuccess': True, 'projects': projects}
@@ -56,8 +83,7 @@ def __service_getProjectSchedule(req):
     if len(projects)<1:
         project=None
     project=projects[0]
-    users=user.getUsers()
-    return {'isSuccess': True, 'project': project, 'users': users}
+    return {'isSuccess': True, 'project': project}
 
 def __service_setProjectSchedule(req):
     project=service.setProjectSchedule(req['project'],user=1)

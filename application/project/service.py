@@ -319,6 +319,7 @@ def setProjectMetadata(conn, project, path, value, user, time=None):
 # <project>/se
 # <project>/members
 # <project>/status
+# <project>/stage
 # <project>/budget
 # <project>/scope
 # <project>/milestones

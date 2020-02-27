@@ -1,15 +1,6 @@
-{% extends "base.html" %}
+{% extends "project_base.html" %}
 {% block title %}
 <title>Project</title>
-{% endblock %}
-
-{% block navbarBrand %}
-<a class="navbar-brand">Project</a>
-{% endblock %}
-
-{% block navbarMenuContent %}
-<li class="nav-item"><a class="nav-link" href="/project">Home</a></li>
-<li class="nav-item"><a class="nav-link" href="/project/admin">Admin</a></li>
 {% endblock %}
 
 {% block mainContent %}
@@ -20,7 +11,7 @@
     <!-- Main Panel -->
     <div class="px-0 col d-flex flex-column overflow-hidden">
         <div class="flex-fill bg-light shadow" style="background-color: rgba(255,255,255,0.9)!important; padding: 1rem;">
-            <div id="app">
+            <div>
                 <ganttchart-editor :project="project" :etimes="etimes" :estaffings="estaffings" :users="users"></ganttchart-editor>
             </div>
         </div>
@@ -37,9 +28,10 @@
 <script>
     var vm;
     var project=null;
+    const projectCode="{{projectCode}}";
 
     function pageLoad() {
-        let projectCode = siteMaster_getQueryString("project")
+        //let projectCode = siteMaster_getQueryString("project")
         // get project schedule
         let req ={
             function: "getProjectSchedule",

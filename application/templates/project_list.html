@@ -1,0 +1,54 @@
+{% extends "project_base.html" %}
+{% block title %}
+<title>Project</title>
+{% endblock %}
+
+{% block mainContent %}
+<div class="flex-fill d-flex flex-row overflow-hidden">
+    <!-- Left Panel -->
+    <div class="col-auto" style="width: 12rem;">
+        <nav class="nav flex-column">
+            <a class="nav-item text-light" href="participated">Participated projects </a>
+            <a class="nav-item text-light" href="managed">Managed projects</a>
+            <a class="nav-item text-light" href="all">All projects</a>
+        </nav>
+    </div>
+
+    <!-- Main Panel -->
+    <div class="px-0 px-md-3 col d-flex flex-column overflow-hidden">
+        <div class="flex-fill shadow p-3" style="background-color: rgba(255,255,255,0.8)!important;">
+            <div class="">
+                
+            </div>
+            <pj-list :list="list" :user="user"></pj-list>
+        </div>
+    </div>
+
+    <!-- Right Panel -->
+    <div class="d-none col-auto" style="width: 0rem;">
+    </div>
+
+</div>
+{% endblock %}
+
+{% block pageStylesAndScripts %}
+<link rel="stylesheet" href="/projectlist.css" />
+<script src="/projectlist.js"></script>
+
+<script>
+    var vm;
+    function pageLoad() {
+        console.log("page initializing...");
+        vm = new Vue({
+            delimiters: ['{[', ']}'],
+            data:function(){
+                return {
+                    list: "{{list}}",
+                    user:{{user.id}},
+                };
+            },
+            el: "#vueapp",
+        });
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,32 @@
+var pjList=Vue.component("pj-list",{
+    props:['projects','users'],
+    template:`
+    <table>
+        <thead>
+            <tr>
+                <th>Project</th>
+                <th>Title</th>
+                <th>PM</th>
+                <th>SE</th>
+                <th>Status</th>
+                <th>Stage</th>
+                <th>Stage</th>
+                <th>Stage</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+    `,
+});
+/*
+可以现实我的
+我管理的
+开放的
+关闭的
+filter
+
+*/ 
