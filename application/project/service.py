@@ -46,7 +46,7 @@ def getProjects(conn=None, code='', metadatas=[]):
                 conn.close()
     return projects
 
-def getProjectSchedules(code, conn=None):
+def getProjectSchedule(code, conn=None):
     localConn=False
     if conn is None:
         try:
@@ -60,17 +60,19 @@ def getProjectSchedules(code, conn=None):
     try:
         # get tasks
         code = code.upper()
-        projects=getProjects(conn=conn, code=code, metadatas=['timespan', 'pm', 'se','members','status', 'budget', 'scope', 'milestones', 'deliverables', 'applicableProposalReviews', 'applicableDesignReviews','update'])
-        for project in projects:
-            tasks=getTasks(conn=conn, project=project['id'], metadatas=['status','owner','requirement','plan','schedule','update','budget'])
-            for task in tasks:
-                if task['schedule']==None:
-                    task['schedule']=None
-                elif task['schedule']=="":
-                    task['schedule']=None
-                else:
-                    task['schedule']=json.loads(task['schedule'])
-            project['tasks']=tasks
+        projects=getProjects(conn=conn, code=code, metadatas=['timespan', 'pm', 'se','members','status'])
+        if projects==None:
+            raise Exception()
+        project=projects[0]
+        tasks=getTasks(conn=conn, project=project['id'], metadatas=['status','owner','plan','schedule','budget'])
+        for task in tasks:
+            if task['schedule']==None:
+                task['schedule']=None
+            elif task['schedule']=="":
+                task['schedule']=None
+            else:
+                task['schedule']=json.loads(task['schedule'])
+        project['tasks']=tasks
     except Exception as e:
         print(e)
         return []
@@ -78,7 +80,7 @@ def getProjectSchedules(code, conn=None):
         if localConn:
             if conn is not None:
                 conn.close
-    return projects
+    return project
 
 def getProjectMetadata(conn, id, path):
     cmd = 'select [value], user, [time] from projectMetadata where project={} and path="{}" order by time DESC'.format(id, path)
@@ -94,9 +96,9 @@ def setProjectSchedule(project,user=0):
         return None
     try:
         conn = sqlite3.connect(databaseFilePath())
-        cursor=conn.cursor()
+        # cursor=conn.cursor()
         # get old project
-        oldProject=getProjectSchedules(code=project['code'], conn=conn)[0]
+        oldProject=getProjectSchedule(code=project['code'], conn=conn)
         # update tasks
         oldTasks=oldProject['tasks']
         for order in range(len(project['tasks'])):

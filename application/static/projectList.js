@@ -20,13 +20,13 @@ var pjList=Vue.component("pj-list",{
     template:`
     <div>
         <div class="btn-group mr-1">
-            <button class="btn btn-outline-secondary" title="Show all tasks" @click="showAllProjectsClickHandler" :class="{'active': (showOpenProjects && showClosedProjects)}">
+            <button class="btn btn-outline-secondary" title="Show all tasks" @click="showAllProjectsClickHandler" :class="{'active':showAllProjects}">
                 <span style="width:1.18rem;display:inline-block">All</span>
             </button>
-            <button class="btn btn-outline-secondary" title="Show open tasks" @click="showOpenProjectsClickHandler" :class="{'active': (showOpenProjects && !showClosedProjects)}">
+            <button class="btn btn-outline-secondary" title="Show open tasks" @click="showOpenProjectsClickHandler" :class="{'active':showOpenProjects}">
                 <span style="width:1.18rem;display:inline-block">O</span>
             </button>
-            <button class="btn btn-outline-secondary" title="Show closed tasks" @click="showClosedProjectsClickHandler" :class="{'active': (!showOpenProjects && showClosedProjects)}">
+            <button class="btn btn-outline-secondary" title="Show closed tasks" @click="showClosedProjectsClickHandler" :class="{'active':showClosedProjects}">
                 <span style="width:1.18rem;display:inline-block">C</span>
             </button>
         </div>

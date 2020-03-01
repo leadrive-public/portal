@@ -18,7 +18,7 @@ def webService():
             raise Exception('Function is not specified.')
         func = req['function']
         if func == 'getEtimes':
-            rsp = __service_getEtime(req)
+            rsp = __service_getEtimes(req)
         elif func == 'getMyEditableEtimes':
             rsp = __service_getMyEditableEtimes(req)
         elif func == 'setMyEditableEtimes':
@@ -42,13 +42,13 @@ def default():
     user=flask_login.current_user
     return flask.render_template("etime_home.html", displayName=user.displayName)
 
-def __service_getEtime(req):
+def __service_getEtimes(req):
     if 'code' in req:
         etimes=service.getEtimes(req['code'])
     else:
         etimes=service.getEtimes()
     if etimes is None:
-        return None
+        etimes=[]
     return {'isSuccess': True, 'etimes': etimes}
 
 @flask_login.login_required

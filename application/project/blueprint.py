@@ -79,10 +79,9 @@ def __service_getProjects(req):
 
 def __service_getProjectSchedule(req):
     code = req['projectCode'].upper()
-    projects=service.getProjectSchedules(code)
-    if len(projects)<1:
-        project=None
-    project=projects[0]
+    project=service.getProjectSchedule(code)
+    if project==None:
+        return None
     return {'isSuccess': True, 'project': project}
 
 def __service_setProjectSchedule(req):

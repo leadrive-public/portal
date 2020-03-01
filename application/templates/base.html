@@ -167,7 +167,7 @@
     {% block footerScript %}
     <script>
         try {
-            console.info((new Date()).toTimeString()+"page initializing...");
+            console.info((new Date()).toJSON()+": Page is initializing...");
             pageLoad();
         }
         catch(e)  {
