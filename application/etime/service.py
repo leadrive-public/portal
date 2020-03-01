@@ -11,6 +11,64 @@ from ..project import service as projectService
 def databaseFilePath():
     return os.path.join(os.path.dirname(__file__),'../database/etime.sqlite3')
 
+def getActivitiesByCode(conn=None):
+    localConn=False
+    if conn is None:
+        try:
+            localConn=True
+            conn = sqlite3.connect(databaseFilePath())
+        except:
+            print('Fail to connect the database: {}!\n'.format(databaseFilePath()))
+            if conn is not None:
+                conn.close()
+            return []
+    try:
+        activities=[]
+        cmd = 'select code, sum(hours) from etimes where occurDate>"{}" group by code'.format('2020-01-01')
+        cursor=conn.execute(cmd)
+        for row in cursor:
+            activity={}
+            activity['code']=row[0]
+            activity['hours']=row[1]
+            activities.append(activity)
+    except Exception as e:
+        print(e)
+        return []
+    finally:
+        if localConn:
+            if conn is not None:
+                conn.close
+    return activities
+
+def getStatisticsByCode(conn=None):
+    localConn=False
+    if conn is None:
+        try:
+            localConn=True
+            conn = sqlite3.connect(databaseFilePath())
+        except:
+            print('Fail to connect the database: {}!\n'.format(databaseFilePath()))
+            if conn is not None:
+                conn.close()
+            return []
+    try:
+        statistics=[]
+        cmd = 'select code, sum(hours) from etimes group by code'
+        cursor=conn.execute(cmd)
+        for row in cursor:
+            statistic={}
+            statistic['code']=row[0]
+            statistic['hours']=row[1]
+            statistics.append(statistic)
+    except Exception as e:
+        print(e)
+        return []
+    finally:
+        if localConn:
+            if conn is not None:
+                conn.close
+    return statistics
+
 def getEtimes(code="",user=0, timespan=None):
     etimes=[]
     try:

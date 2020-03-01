@@ -46,7 +46,7 @@ def getProjects(conn=None, code='', metadatas=[]):
                 conn.close()
     return projects
 
-def getProjectSchedule(code, conn=None):
+def getProjectList(conn=None):
     localConn=False
     if conn is None:
         try:
@@ -57,6 +57,33 @@ def getProjectSchedule(code, conn=None):
             if conn is not None:
                 conn.close()
             return []
+    try:
+        projects=getProjects(conn=conn, metadatas=['pm', 'se','stage','status', 'budget'])
+        if projects==None:
+            project=[]
+        for project in projects:
+            tasks=getTasks(conn=conn, project=project['id'], metadatas=['status'])
+            project['tasks']=tasks
+    except Exception as e:
+        print(e)
+        return []
+    finally:
+        if localConn:
+            if conn is not None:
+                conn.close
+    return projects
+
+def getProjectSchedule(code, conn=None):
+    localConn=False
+    if conn is None:
+        try:
+            localConn=True
+            conn = sqlite3.connect(databaseFilePath())
+        except:
+            print('Fail to connect the database: {}!\n'.format(databaseFilePath()))
+            if conn is not None:
+                conn.close()
+            return None
     try:
         # get tasks
         code = code.upper()
@@ -242,7 +269,7 @@ def insertTask(conn, task):
     return newTask
 
 def getTasks(conn=None, project=0, metadatas=[]):
-    print('getTasks: project={}, metadatas={}'.format(project,metadatas))
+    # print('getTasks: project={}, metadatas={}'.format(project,metadatas))
     tasks = []
     localConn=False
     if conn is None:

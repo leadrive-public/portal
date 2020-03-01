@@ -27,6 +27,10 @@ def webService():
             rsp = __service_getCodes(req)
         elif func == 'getTasks':
             rsp = __service_getTasks(req)
+        elif func == 'getStatisticsByCode':
+            rsp = __service_getStatisticsByCode(req)
+        elif func == 'getActivitiesByCode':
+            rsp = __service_getActivitiesByCode(req)
         else:
             rsp = {'isSuccess': False, 'exceptionMessage': 'Function {} is not implemented.'.format(func)}
     except Exception as e:
@@ -126,4 +130,12 @@ def __service_setMyEditableEtimes(req):
         rsp = {'isSuccess': False, 'exceptionMessage': str(e)}
     return rsp
 
+def __service_getStatisticsByCode(req):
+    print("__service_getStatisticsByCode")
+    statistics=service.getStatisticsByCode()
+    return {'isSuccess': True, 'statistics': statistics}
 
+def __service_getActivitiesByCode(req):
+    print('__service_getActivitiesByCode')
+    activities=service.getActivitiesByCode()
+    return {'isSuccess': True, 'activities': activities}

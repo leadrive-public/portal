@@ -1,3 +1,9 @@
+.pj-list{
+    overflow: hidden;
+}
+.pj-table{
+    table-layout: fixed;
+}
 .pj-pjCell, .pj-titleCell, .pj-pmCell, .pj-seCell, .pj-statusCell, .pj-stageCell, .pj-progressCell, .pj-activityCell{
     overflow: hidden; 
     text-overflow: ellipsis; 
@@ -5,22 +11,87 @@
 }
 .pj-pjCell{
     width:5rem; 
+    max-width: 5rem;
+    min-width: 5rem;
 }
 .pj-titleCell{
-    width:auto;
+    width: auto;
+    max-width: 20rem;
+    min-width: 5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 .pj-pmCell, .pj-seCell{
     width:5rem;
+    max-width: 5rem;
+    min-width: 5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
 }
 .pj-statusCell{
     width:5rem;
-} 
+    max-width: 5rem;
+    min-width: 5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+}
+
 .pj-stageCell{
     width:5rem;
+    max-width: 5rem;
+    min-width: 5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
 } 
+.pj-budgetCell{
+    width:5rem;
+    max-width: 5rem;
+    min-width: 5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+}
+.pj-spendingCell{
+    width:5rem;
+    max-width: 5rem;
+    min-width: 5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+}
 .pj-progressCell{
     width:5rem;
+    max-width: 5rem;
+    min-width: 5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
 } 
 .pj-activityCell{
     width:5rem;
+    max-width: 5rem;
+    min-width: 5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+}
+.pj-taskCell{
+    width:5rem;
+    max-width: 5rem;
+    min-width: 5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
 }

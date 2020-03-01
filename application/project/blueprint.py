@@ -60,6 +60,8 @@ def webService():
     rsp = None
     if func == 'getProjects':
         rsp = __service_getProjects(req)
+    if func == 'getProjectList':
+        rsp = __service_getProjectList(req)
     elif func == 'getProjectSchedule':
         rsp = __service_getProjectSchedule(req)
     elif func == 'setProjectSchedule':
@@ -89,4 +91,9 @@ def __service_setProjectSchedule(req):
     if project is None:
         return None
     return {'isSuccess': True, 'project': project}
-    
+
+def __service_getProjectList(req):
+    projects=service.getProjectList()
+    if projects is None:
+        projects=[]
+    return {'isSuccess': True, 'projects': projects}

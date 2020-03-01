@@ -322,7 +322,7 @@ var gcWeekCell=Vue.component("gc-weekcell",{
             bgClass:"",
         }
     },
-    props:["task","isHeader", "week", "editor"],
+    props:["task","isHeader", "week", "editor","etimeStatistics","editorActiveCell","editorSelectWeek"],
     template:`
         <template>
             <th class="gc-weekcell" :title="timeRangeTitle" v-if="isHeader" :class="{'d-none': !isVisible}">W{{week.weekNumber}}</th>
