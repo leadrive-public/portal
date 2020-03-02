@@ -94,3 +94,7 @@
 .btn .icon{
     margin: 0;
 }
+
+.text-hover-light:hover{
+    color: #f8f9fa !important;
+}

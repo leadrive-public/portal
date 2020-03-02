@@ -73,6 +73,35 @@ def getProjectList(conn=None):
                 conn.close
     return projects
 
+def getProjectSchedules(code="", conn=None):
+    localConn=False
+    if conn is None:
+        try:
+            localConn=True
+            conn = sqlite3.connect(databaseFilePath())
+        except:
+            print('Fail to connect the database: {}!\n'.format(databaseFilePath()))
+            if conn is not None:
+                conn.close()
+            return None
+    try:
+        # get tasks
+        code = code.upper()
+        projects=getProjects(conn=conn, code=code, metadatas=['status'])
+        if projects==None:
+            raise Exception()
+        for project in projects:
+            tasks=getTasks(conn=conn, project=project['id'], metadatas=['status','schedule'])
+            project['tasks']=tasks
+    except Exception as e:
+        print(e)
+        return []
+    finally:
+        if localConn:
+            if conn is not None:
+                conn.close
+    return projects
+
 def getProjectSchedule(code, conn=None):
     localConn=False
     if conn is None:

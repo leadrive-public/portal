@@ -1,0 +1,30 @@
+.es-editor{
+
+}
+.es-table{
+
+}
+.es-row{
+
+}
+.es-usercell{
+    width: 7.5rem;
+    min-width: 7.5rem;
+    max-width: 7.5rem;
+}
+.es-usercell:hover{
+    cursor: pointer;
+    color: rgba(0,123,255,1);
+}
+.es-usercell.es-selected{
+
+}
+.es-subrow{
+
+}
+.es-projectcell{
+    width: 7.5rem;
+    min-width: 7.5rem;
+    max-width: 7.5rem;
+    text-indent: 2rem;
+}

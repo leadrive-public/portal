@@ -322,7 +322,7 @@ var gcWeekCell=Vue.component("gc-weekcell",{
             bgClass:"",
         }
     },
-    props:["task","isHeader", "week", "editor","etimeStatistics","editorActiveCell","editorSelectWeek"],
+    props:["task","isHeader", "week","etimeStatistics","editorActiveCell","editorSelectedWeek","weekModalShowHandler","showAllPastWeeks","showAllComingWeeks"],
     template:`
         <template>
             <th class="gc-weekcell" :title="timeRangeTitle" v-if="isHeader" :class="{'d-none': !isVisible}">W{{week.weekNumber}}</th>
@@ -333,8 +333,8 @@ var gcWeekCell=Vue.component("gc-weekcell",{
     `,
     computed:{
         isVisible:function(){
-            if (!this.editor.showAllPastWeeks && this.week.isLongPastWeek) return false;
-            if (!this.editor.showAllComingWeeks && this.week.isLongComingWeek) return false;
+            if (!this.showAllPastWeeks && this.week.isLongPastWeek) return false;
+            if (!this.showAllComingWeeks && this.week.isLongComingWeek) return false;
             return true;
         },
         isGroupedTask:function(){
@@ -344,7 +344,7 @@ var gcWeekCell=Vue.component("gc-weekcell",{
         timeRangeTitle: function(){
             return `from ${Project.getDateString(this.week.startDate)} to ${Project.getDateString(this.week.endDate)}`;
         },
-        isActiveCell:function(){return(this.editor.activeCell===this);},
+        isActiveCell:function(){return(this.editorActiveCell===this);},
         displayValue:function(){
             if (this.week.isPastWeek){
                 let hours=this.getEtimeHours();
@@ -391,15 +391,15 @@ var gcWeekCell=Vue.component("gc-weekcell",{
                 }, this.delay);
                 if(!this.isGroupedTask){
                     if(!this.isActiveCell){
-                        this.editor.activeCell=this;
-                        this.editor.selectWeek=this.week;
+                        //this.editorActiveCell=this;
+                        //this.editorSelectedWeek=this.week;
                     }
                 }
                 this.$emit("click",this);
             } else{
                 clearTimeout(this.timer);
                 if (!this.task.isGrouped) {
-                    this.editor.weekInputShowHandler();
+                    this.weekModalShowHandler();
                 }
                 this.$emit("dblclick",this);
                 this.clicks = 0;
@@ -410,7 +410,7 @@ var gcWeekCell=Vue.component("gc-weekcell",{
             if (!('number' in this.task)) return 0;
             let taskNumber=this.task.number;
             
-            let etimeStatisticsItem=this.editor.etimeStatistics.find(function(item){
+            let etimeStatisticsItem=this.etimeStatistics.find(function(item){
                 return item.task===taskNumber;
             });
             if (etimeStatisticsItem===undefined || etimeStatisticsItem===null) return 0;
@@ -564,7 +564,7 @@ var gcRow=Vue.component("gc-row",{
         <td :task="task" :isHeader="isHeader" :editor="editor" @click="clickHandler" is="gc-budgetcell"></td>
         <td :task="task" :isHeader="isHeader" :editor="editor" @click="clickHandler" is="gc-etimecell"></td>
         <td :task="task" :isHeader="isHeader" :editor="editor" @click="clickHandler" is="gc-progcell"></td>
-        <td :task="task" :isHeader="isHeader" :editor="editor" @click="clickHandler" is="gc-weekcell" v-for="week in editor.weeks" v-bind:week="week"></td>
+        <td :task="task" :isHeader="isHeader" :editor="editor" @click="weekCellClickHandler" is="gc-weekcell" v-for="week in editor.weeks" :week="week" :etimeStatistics="editor.etimeStatistics" :editorActiveCell="editor.activeCell" :editorSelectedWeek="editor.selectWeek" :weekModalShowHandler="editor.weekInputShowHandler" :showAllPastWeeks="editor.showAllPastWeeks" :showAllComingWeeks="editor.showAllPastWeeks"></td>
     </tr>
     `,
     computed:{
@@ -594,6 +594,14 @@ var gcRow=Vue.component("gc-row",{
             this.editor.selectTask=this.task;
             this.$emit("select", this);
         },
+        weekCellClickHandler:function(sender){
+            if(this.editor.activeCell!==sender){
+                this.editor.activeCell=sender;
+                this.editor.selectWeek=sender.week;
+            }
+            this.editor.selectTask=this.task;
+            this.$emit("select", this);
+        }
     }
 })
 var gcTable=Vue.component("gc-table",{

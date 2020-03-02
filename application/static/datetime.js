@@ -25,6 +25,15 @@ class DateTime{
         }
         return firstDate;
     }
+    static getFirstDayOfMonth(){
+        let date;
+        if (arguments.length == 1) { date = arguments[0]; } else { date = new Date(); }
+        date=this.getDateComponent(date);
+        let firstDate=new Date;
+        firstDate.setTime(date.getTime());
+        firstDate.setUTCDate(1);
+        return firstDate;
+    }
     static getLastDayOfWeek() {
         let date;
         if (arguments.length == 1) { date = arguments[0]; } else { date = new Date(); }
