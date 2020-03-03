@@ -254,7 +254,7 @@ def getProjectTasks(code=''):
             task['code']=code
             task['number']=projectTask['number']
             task['title']=projectTask['title']
-            task['status']=project['status']
+            task['status']=projectTask['status']
             if task['status'] is None:
                 task['status']='closed'
             elif task['status']=='':
