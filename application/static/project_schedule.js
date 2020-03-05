@@ -1110,9 +1110,15 @@ var gcEditor=Vue.component("gc-editor", {
             if (task.schedule===null) task.schedule=[];
             // delete existing items
             if (task.schedule!==null){
-                for(let index=0;index<task.schedule.length;index++){
+                let index=0;
+                while(index<task.schedule.length){
+                    console.log(index);
                     if (task.schedule[index].weekDate===Project.getDateString(week.startDate)){
+                        console.log(task.schedule[index]);
                         task.schedule.splice(index,1);
+                    }
+                    else{
+                        index+=1;
                     }
                 }
             }

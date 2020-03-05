@@ -44,16 +44,11 @@
     <div class="siteMaster-bodyContainer vh-100-sm" id="vueapp">
         <!-- Header -->
         {% block header %}
-        <header>
+        <header style="">
             <nav class="navbar navbar-expand-sm navbar-transparent navbar-dark">
-                <button class="navbar-appBtn" onclick="siteMaster_appBtn_clickHandler()">
+                <button class="navbar-appBtn" onclick="$('#sidebar-modal').modal('show')">
                     <span class="navbar-appBtn-icon"></span>
                 </button>
-                <script>
-                    function siteMaster_appBtn_clickHandler(){
-                        $('#sidebar-modal').modal("show");
-                    }
-                </script>
                 {% block navbarBrand %}
                 <a class="navbar-brand">LEADRIVE</a>
                 {% endblock %}
@@ -96,7 +91,6 @@
                     {% endblock %}
                 </div>
             </nav>
-
         </header>
         {% endblock %}
         <!-- Main -->
@@ -149,18 +143,26 @@
     </div>
     {% endblock %}
     <div class="modal" id="sidebar-modal" role="dialog">
-        <div class="modal-dialog" role="document" style="margin-top: 0; margin-left: 0; margin-bottom: 0; width:10rem; height: 100%; display: flex;">
+        <div class="modal-dialog" role="document" style="margin-top: 0; margin-left: 0; margin-bottom: 0; width:15rem; height: 100%; display: flex;">
             <div class="modal-content" style="background-color: black;border: none; border-radius: 0;">
-                <div class="modal-body p-0">
-                    <div class="text-light px-2 py-1"><a href="/" class="text-light text-decoration-none"><i class="home icon"></i>HOME</a></div>
-                    <hr  style="border: none; height: 1px; background-color:darkgray; margin: 0.25rem 0;"/>
-                    <div class="text-light px-2 py-1">QMS</div>
-                    <div class="small px-2 py-1"><a class="text-muted text-decoration-none ">Daily Operation</a></div>
-                    <div class="small px-2 py-1"><a class="text-muted text-decoration-none">ENG & MFG</a></div>
-                    <div class="text-light px-2 py-1">Tools</div>
-                    <div class="small px-2 py-1"><a href="/project" class="text-muted text-decoration-none text-hover-light">Project</a></div>
-                    <div class="small px-2 py-1"><a href="/etime" class="text-muted text-decoration-none text-hover-light">eTime</a></div>
-                    <div class="small px-2 py-1"><a href="/estaffing" class="text-muted text-decoration-none text-hover-light">eStaffing</a></div>
+                <div class="modal-body sidebar">
+                    <div class="sidebar-header">
+                        <button class="navbar-appBtn" onclick="$('#sidebar-modal').modal('hide')">
+                            <span class="navbar-appBtn-icon"></span>
+                        </button>
+                        <a href="/" class="sidebar-header-home">
+                            HOME<i class="arrow right icon"></i>
+                        </a>
+                    </div>
+                    <hr  style="border: none; height: 1px; background-color:rgba(255,255,255,0.2); margin: 0.25rem 0;"/>
+                    <div class="sidebar-nav-header"">About</div>
+                    <a class="sidebar-nav-item">Daily Operation</a>
+                    <a class="sidebar-nav-item">ENG & MFG</a>
+                    <hr class="sidebar-nav-divider"/>
+                    <div class="sidebar-nav-header">Tools</div>
+                    <a class="sidebar-nav-item" href="/project">Project</a>
+                    <a class="sidebar-nav-item" href="/etime" >eTime</a>
+                    <a class="sidebar-nav-item" href="/estaffing">eStaffing</a>
                 </div>
             </div>
         </div>
