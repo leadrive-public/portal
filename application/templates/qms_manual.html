@@ -23,65 +23,69 @@
         <div class="flex-fill shadow p-3" style="background-color: rgba(255,255,255,0.8)!important;">
             <ol class="breadcrumb bg-transparent p-0">
                 <li class="breadcrumb-item"><a href="/"><i class="home icon"></i></a></li>
-                <li class="breadcrumb-item active">QMS</li>
+                <li class="breadcrumb-item"><a href="/qms">QMS</a></li>
+                <li class="breadcrumb-item active">Manual</li>
             </ol>
             <hr />
-            <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3">
-                <div class="col">
-                    <a class="qms-item" href="./manual">
-                        <h4>Quality Manual</h4>
-                        <p>Quality policy and objectives; QMS description, the business process model of the organization; definition of responsibilities for all personnel; ...</p>
-                    </a>
+            <div class="row">
+                <div class="d-none d-md-block col-3">
+                    <ul class="nav flex-column ">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="./manual">Quality Manual</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="./procedures">Procedures</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link">Work Instructions</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="./workinstructions-daily"><span class="ml-3">Daily Operation</span></a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="./workinstructions-engineering">Engineering</a>
+                        </li>
+                    </ul>
                 </div>
-                <div class="col">
-                    <a class="qms-item" href="procedures">
-                        <h4>Procedures</h4>
-                        <p>Procedures document the methods employed to achieve the policy defined in the QSM.</p>
-                    </a>
-                </div>
-                <div class="col">
-                    <a class="qms-item" href="wi-daily">
-                        <h4>Work Instructions (Daily Operation)</h4>
-                        <p>Work Instructions document specific tasks performed to meet the procedural requirement.</p>
-                    </a>
-                </div>
-                <div class="col">
-                    <a class="qms-item" href="wi-eng">
-                        <h4>Work Instructions (Engineering)</h4>
-                        <p>Work Instructions document specific tasks performed to meet the procedural requirement.</p>
-                    </a>
+                <div class="col-9">
+                    <ul v-for="doc in docList">
+                        <li>
+                            <p>{[doc.number]} | {[doc.title]}</p>
+                            <small>{[doc.description]}</small>
+                        </li>
+                    </ul>
                 </div>
             </div>
+            
+         
         </div>
     </div>
+
     <!-- Right Panel -->
     <div class="d-none col-auto" style="width: 0rem;">
     </div>
+
 </div>
 {% endblock %}
 
 
 {% block pageStylesAndScripts %}
 <style>
-.qms-item{
-    border: 1px solid transparent;
-    color: var(--dark);
-    text-decoration: none;
-    display: block;
-}
-.qms-item:hover{
-    border: 1px solid transparent;
-    color: var(--dark);
-    text-decoration: none;
-    background-color: rgba(255,255,255,0.4);
-}
-.qms-item:hover >h4{
-    color: var(--primary);
+.nav-link.active{
+    background-color: rgba(255,255,255,0.6);
 }
 
 </style>
 <script>
     var vm;
+    const qms=[
+        {
+            number:"ZQ-WI-10",
+            title:"质量手册 2020",
+            description:"",
+            category:""
+        }
+    ];
     const wis=[
         {
             number:"ZQ-WI-10",
@@ -150,24 +154,8 @@
             delimiters: ['{[', ']}'],
             data:function(){
                 return {
-                   
+                    docList:qms,
                 };
-            },
-            computed:{
-                dailyWIs:function(){
-                    let result=[];
-                    result=wis.filter(function(item){
-                        return item.category.includes("DAILY");
-                    });
-                    return result;
-                },
-                engWIs:function(){
-                    let result=[];
-                    result=wis.filter(function(item){
-                        return item.category.includes("RD") || item.category.includes("MFG");
-                    });
-                    return result;
-                },
             },
             el: "#vueapp",
         });

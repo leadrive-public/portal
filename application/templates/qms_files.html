@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}
+<title>QMS</title>
+{% endblock %}
+
+
+{% block pageStylesAndScripts %}
+<link type="text/css" rel="stylesheet" href="/qms.css" />
+<script src="/markdown.js"></script>
+<script>
+    var vm;
+    var file="{{file}}";
+    var version="{{version}}";
+    var ajaxStatus;
+    function pageLoad() {
+        console.log("page initializing...");
+        $.ajax({
+            type: "POST",
+            url: "/qms/service",
+            contentType: "application/json",
+            data: JSON.stringify({
+                function:"getDoc",
+                code:file,
+            }),
+            dataType: "json",
+            async: true,
+            context: this,
+            beforeSend: getDoc_beforeCallback,
+            success: getDoc_successCallback,
+            error: getDoc_errorCallback,
+            complete: null,
+        });
+        vm = new Vue({
+            delimiters: ['{[', ']}'],
+            data:function(){
+                return {
+                    file:file,
+                    version:version,
+                    markdownContent:"",
+                };
+            },
+            el: "#vueapp",
+        });
+    }
+    function getDoc_beforeCallback(){
+        ajaxStatus="running";
+    }
+    function getDoc_successCallback(rsp){
+        console.info(new Date().toJSON()+": Success to get file data from the server!");
+        //console.log(rsp);
+        vm.markdownContent=rsp.content;
+    }
+    function getDoc_errorCallback(){
+        console.error(`Fail to fetch file data from the server!`);
+    }
+</script>
+<style>
+    .siteMaster-bodyContainer{
+
+    }
+    .siteMaster-mainContainer{
+
+    }
+</style>
+{% endblock %}
+
+{% block navbarBrand %}
+<a class="navbar-brand">QMS</a>
+{% endblock %}
+
+{% block navbarMenuContent %}
+<li class="nav-item"><a class="nav-link">Overview</a></li>
+<li class="nav-item"><a class="nav-link" title="QMS settings" href="#">Settings</a></li>
+{% endblock %}
+
+{% block mainContent %}
+<div class="flex-fill p-3 d-flex flex-column overflow-hidden" style="background-color: rgba(255,255,255,0.9)!important;">
+    <ol class="breadcrumb bg-transparent p-0 m-0 position-sticky">
+        <li class="breadcrumb-item"><a href="/"><i class="home icon"></i></a></li>
+        <li class="breadcrumb-item"><a href="/qms">QMS</a></li>
+        {% if file is defined %}
+        {% if version is defined %}
+        <li class="breadcrumb-item"><a href="../../">Files</a></li>
+        <li class="breadcrumb-item"><a href="./">{{file}}</a></li>
+        <li class="breadcrumb-item active"><a>{{version}}</a></li>
+        {% else %}
+        <li class="breadcrumb-item"><a href=".">Files</a></li>
+        <li class="breadcrumb-item active"><a>{{file}}</a></li>
+        {% endif %}
+        {% else %}
+        <li class="breadcrumb-item active">Files</li>
+        {% endif %}
+    </ol>
+    <hr class="my-2"/>
+    <qms-fileviewer :content="markdownContent"></qms-fileviewer>
+</div>
+{% endblock %}
+

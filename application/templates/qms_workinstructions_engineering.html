@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block title %}
+<title>QMS</title>
+{% endblock %}
+
+{% block navbarBrand %}
+<a class="navbar-brand">QMS</a>
+{% endblock %}
+
+{% block navbarMenuContent %}
+<li class="nav-item"><a class="nav-link">Overview</a></li>
+<li class="nav-item"><a class="nav-link" title="QMS settings" href="#">Settings</a></li>
+{% endblock %}
+
+{% block mainContent %}
+<div class="flex-fill d-flex flex-row overflow-hidden">
+    <!-- Left Panel -->
+    <div class="d-none col-auto" style="width: 0;"></div>
+
+    <!-- Main Panel -->
+    <div class="px-0 col d-flex flex-column overflow-hidden">
+        <div class="flex-fill shadow p-3" style="background-color: rgba(255,255,255,0.8)!important;">
+            <ol class="breadcrumb bg-transparent p-0">
+                <li class="breadcrumb-item"><a href="/"><i class="home icon"></i></a></li>
+                <li class="breadcrumb-item"><a href="/qms">QMS</a></li>
+                <li class="breadcrumb-item active">WI-ENG</li>
+            </ol>
+            <hr />
+            <div class="row">
+                <div class="d-none d-md-block col-3">
+                    <ul class="nav flex-column ">
+                        <li class="nav-item">
+                            <a class="nav-link " href="./manual">Quality Manual</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="./procedures">Procedures</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link">Work Instructions</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="./wi-daily"><span class="ml-3">Daily Operation</span></a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="./wi-eng"><span class="ml-3">Engineering</span></a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-9">
+                    <ul class="qms-filelist">
+                        <li v-for="doc in docList">
+                            <a :href="'./files/'+doc.number" class="d-block">
+                                <p class="mb-0">{[doc.number]} | {[doc.title]}</p>
+                                <p class="small">{[doc.description]}</p>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+         
+        </div>
+    </div>
+
+    <!-- Right Panel -->
+    <div class="d-none col-auto" style="width: 0rem;">
+    </div>
+
+</div>
+{% endblock %}
+
+
+{% block pageStylesAndScripts %}
+<link type="text/css" rel="stylesheet" href="/qms.css" />
+<style>
+
+
+</style>
+<script>
+    var vm;
+    const wis=[
+        {
+            number:"ZQ-WI-10",
+            title:"新产品开发-研发",
+            description:"用于规范研发部门从事新产品开发的指导书",
+            category:"RD"
+        },
+        {
+            number:"ZQ-WI-11",
+            title:"技术评审规定",
+            description:"",
+            category:"RD"
+        },
+        {
+            number:"ZQ-WI-12",
+            title:"研发立项流程",
+            description:"用于规定研发部的立项流程，包括NTI、IRD等",
+            category:"RD"
+        },
+        {
+            number:"ZQ-WI-13",
+            title:"研发阶段样机和物料管理办法",
+            description:"",
+            category:"RD"
+        },
+        {
+            number:"ZQ-WI-14",
+            title:"料号和零件编码规范",
+            description:"",
+            category:"RD"
+        },
+        {
+            number:"ZQ-WI-15",
+            title:"样品出入库流程",
+            description:"",
+            category:"RD"
+        },
+        {
+            number:"ZQ-WI-17",
+            title:"经验教训记录办法",
+            description:"",
+            category:"RD"
+        },
+        {
+            number:"ZQ-WI-18",
+            title:"PLM系统管理办法",
+            description:"",
+            category:"RD"
+        },
+        {
+            number:"ZQ-WI-19",
+            title:"设计变更流程",
+            description:"研发部门在正式发布图纸至生产部门后进行产品设计变更的流程",
+            category:"RD"
+        },
+
+
+    ];
+    var wis2=[
+        {
+            number:"ZQ-WI-20",
+            title:"技术文档存档规定",
+            description:"用于指导公司技术相关文档的存档操作",
+            category:"RD"
+        },
+        {
+            number:"ZQ-WI-21",
+            title:"图纸锁定与发布流程",
+            description:"研发部门在确认设计后，发布给生产部门以及柳州臻驱用于生产的批量采购流程",
+            category:"RD"
+        },
+        {
+            number:"ZQ-WI-22",
+            title:"研发阶段图纸外发流程",
+            description:"研发部门为了制作少部分样机而向供应商发布图纸打样的流程",
+            category:"RD"
+        },
+    ];
+    function pageLoad() {
+        console.log("page initializing...");
+        vm = new Vue({
+            delimiters: ['{[', ']}'],
+            data:function(){
+                return {
+                    docList:wis2,
+                };
+            },
+            el: "#vueapp",
+        });
+    }
+</script>
+{% endblock %}
