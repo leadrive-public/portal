@@ -44,7 +44,7 @@ def webService():
 @flask_login.login_required
 def default():
     user=flask_login.current_user
-    return flask.render_template("etime_home.html", displayName=user.displayName)
+    return flask.render_template("etime_home.html", user=user)
 
 def __service_getEtimes(req):
     if 'code' in req:

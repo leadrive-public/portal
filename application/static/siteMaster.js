@@ -79,3 +79,23 @@ function sitemaster_getUuid() {
     });
     return uuid;
 }
+var sitemaster_linkitem=Vue.component("sitemaster-link-item",{
+    props:['linkitem'],
+    template:`
+    <div class="col sitemaster-link-item">
+        <a :href="linkitem.link">
+            <h4>{{linkitem.title}}</h4>
+            <p>{{linkitem.description}}</p>
+        </a>
+    </div>
+    `,
+
+});
+var sitemaster_linkgroup=Vue.component("sitemaster-link-group",{
+    props:['linkitems'],
+    template:`
+    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3">
+        <sitemaster-link-item v-for="linkitem in linkitems" :linkitem="linkitem"></sitemaster-link-item>
+    </div>
+    `,
+});

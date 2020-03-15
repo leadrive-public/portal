@@ -6,6 +6,7 @@ from . import user as userService
 from . import qms
 from . import project
 from . import etime
+from . import ioi
 from . import estaffing
 
 def create_app():
@@ -26,6 +27,7 @@ def create_app():
     app.register_blueprint(project.bp, url_prefix='/project')
     app.register_blueprint(userService.bp, url_prefix='/user')
     app.register_blueprint(etime.bp,  url_prefix='/etime')
+    app.register_blueprint(ioi.bp,  url_prefix='/ioi')
     app.register_blueprint(estaffing.bp,  url_prefix='/estaffing')
 
     # /

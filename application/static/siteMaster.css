@@ -137,3 +137,19 @@
 .sidebar-nav-item:hover{
     color:var(--light);
 }
+
+.sitemaster-link-item >a{
+    border: 1px solid transparent;
+    color: var(--dark);
+    text-decoration: none;
+    display: block;
+}
+.sitemaster-link-item >a:hover{
+    border: 1px solid transparent;
+    color: var(--dark);
+    text-decoration:underline;
+    background-color: rgba(255,255,255,0.8);
+}
+.sitemaster-link-item >a >h4{
+    color: var(--primary);
+}

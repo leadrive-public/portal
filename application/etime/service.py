@@ -206,6 +206,15 @@ def getTasks(code=''):
         tasks.extend(getLocalTasks(code))
     return tasks
 
+def getTaskDescription(code, taskNo):
+    if code==None or code=='':
+        return ''
+    tasks=getTasks(code)
+    for task in tasks:
+        if task['number']==taskNo:
+            return task['title']
+    return ''
+
 def getLocalTasks(code=''):
     tasks=[]
     try:

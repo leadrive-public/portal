@@ -1,0 +1,65 @@
+{% extends "ioi_base.html" %}
+
+{% block pageStylesAndScripts %}
+<script src="/datetime.js"></script>
+<script src="/ioi_tasklist.js"></script>
+<script>
+    var userId={{user.id}};
+    function pageLoad() {
+        vm = new Vue({
+            delimiters: ['{[', ']}'],
+            data:function(){
+                return {
+                };
+            },
+            el: "#vueapp",
+        });
+    }
+</script>
+<style>
+    .ioi-code-col{
+        width:7.5rem;
+        max-width: 7.5rem;
+        min-width: 5rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .ioi-task-col{
+        width:15rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .ioi-hours-col{
+        width:5rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .ioi-content-col{
+        width:auto;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .ioi-edit-col{
+        width:5rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+</style>
+{% endblock %}
+
+{% block mainContent %}
+<div class="flex-fill p-3 d-flex flex-column overflow-hidden" style="background-color: rgba(255,255,255,0.9)!important;">
+    <ol class="breadcrumb bg-transparent p-0 m-0 position-sticky">
+        <li class="breadcrumb-item"><a href="/"><i class="home icon"></i></a></li>
+        <li class="breadcrumb-item"><a href="/ioi">IOI</a></li>
+        <li class="breadcrumb-item active">TaskList</li>
+    </ol>
+    <hr class="my-2"/>
+    <ioi-tasklist></ioi-tasklist>
+</div>
+{% endblock %}

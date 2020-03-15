@@ -1,0 +1,49 @@
+{% extends "ioi_base.html" %}
+
+{% block pageStylesAndScripts %}
+<script src="/datetime.js"></script>
+<script src="/ioi_edit.js"></script>
+<script>
+    var userId=Number("{{user.id}}");
+    function pageLoad() {
+        vm = new Vue({
+            data:function(){
+                return {
+                    linkitems:[
+                        {
+                            link:"/ioi/updates",
+                            title:"Updates of This Week",
+                            description:"View and edit the IOI updates of this week."
+                        },
+                        {
+                            link:"/ioi/teams",
+                            title:"View by Teams",
+                            description:"View the IOIs by teams."
+                        },
+                        {
+                            link:"/ioi/projects",
+                            title:"View by Projects",
+                            description:"View the IOIs by projects."
+                        },
+                    ],
+                };
+            },
+            el: "#vueapp",
+        });
+    }
+</script>
+<style>
+
+</style>
+{% endblock %}
+
+{% block mainContent %}
+<div class="flex-fill p-3 d-flex flex-column overflow-hidden" style="background-color: rgba(255,255,255,0.9)!important;">
+    <ol class="breadcrumb bg-transparent p-0 m-0 position-sticky">
+        <li class="breadcrumb-item"><a href="/"><i class="home icon"></i></a></li>
+        <li class="breadcrumb-item active">IOI</li>
+    </ol>
+    <hr class="my-2"/>
+    <sitemaster-link-group :linkitems="linkitems"></sitemaster-link-group>
+</div>
+{% endblock %}

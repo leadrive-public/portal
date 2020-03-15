@@ -16,6 +16,8 @@ def service():
         func = req['function']
         if func == 'getUsers':
             rsp = __service_getUsers(req)
+        if func == 'getUser':
+            rsp = __service_getUser(req)
         else:
             rsp = {'isSuccess': False, 'exceptionMessage': 'Function {} is not implemented.'.format(func)}
     except Exception as e:
@@ -30,3 +32,11 @@ def __service_getUsers(req):
     if users is None:
         return None
     return {'isSuccess': True, 'users': users}
+
+def __service_getUser(req):
+    userId=int(req['id'])
+    user=user_service.getUserById(userId)
+    if user!=None:
+        return {'isSuccess': True, 'name': user.name, 'id': userId,'displayName': user.displayName}
+    else:
+        return {'isSuccess': False}

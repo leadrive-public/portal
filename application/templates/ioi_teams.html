@@ -1,0 +1,122 @@
+{% extends "ioi_base.html" %}
+
+{% block pageStylesAndScripts %}
+<script src="/datetime.js"></script>
+<script src="/ioi_tasklist.js"></script>
+<script>
+    var userId=Number("{{user.id}}");
+    function pageLoad() {
+        vm = new Vue({
+            delimiters: ['{[', ']}'],
+            data:function(){
+                return {
+                    ajaxStatus:"",
+                    teams:[],
+                };
+            },
+            methods:{
+                getData_beforeCallback:function(){
+                    this.ajaxStatus="running";
+                },
+                getData_successCallback:function(rsp){
+                    console.info(`${new Date().toJSON()}: Success to get data from the server!`);
+                    console.log(rsp);
+                    if (rsp.isSuccess){
+                        this.ajaxStatus="success";
+                        this.tasks=rsp.tasks;
+                        this.weekDate=new Date(rsp.weekDate);
+                    }
+                    else{
+                        this.ajaxStatus="error";
+                        this.tasks=null;
+                        console.warn(rsp.exceptionMessage);
+                    }
+                },
+                getData_errorCallback:function(){
+                    console.error(`${new Date().toJSON()}: Fail to fetch data from the server!`);
+                    this.tasks=null;
+                    this.ajaxStatus="error";
+                }
+            },
+            el: "#vueapp",
+            mounted:function(){
+                $.ajax({
+                    type: "POST",
+                    url: "service",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        function:"getTeams",
+                    }),
+                    dataType: "json",
+                    async: true,
+                    context: this,
+                    beforeSend: this.getData_beforeCallback,
+                    success: this.getData_successCallback,
+                    error: this.getData_errorCallback,
+                    complete: null,
+                });
+            }
+        });
+    }
+</script>
+<style>
+    .ioi-team-col{
+        width: 5rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .ioi-members-col{
+        width:5rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .ioi-operation-col{
+        width:5rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+</style>
+{% endblock %}
+
+{% block mainContent %}
+<div class="flex-fill p-3 d-flex flex-column overflow-hidden" style="background-color: rgba(255,255,255,0.9)!important;">
+    <ol class="breadcrumb bg-transparent p-0 m-0 position-sticky">
+        <li class="breadcrumb-item"><a href="/"><i class="home icon"></i></a></li>
+        <li class="breadcrumb-item"><a href="/ioi">IOI</a></li>
+        <li class="breadcrumb-item active">Teams</li>
+    </ol>
+    <hr class="my-2"/>
+    <div class="alert alert-info" role="alert" v-if="ajaxStatus=='running'">
+        <div class="spinner-border spinner-border-sm text-info" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+        Searching data from the server...
+    </div>
+    <div class="alert alert-danger" role="alert" v-if="ajaxStatus=='error'">
+        Fail to get codes from the server!
+    </div>
+    <div v-if="ajaxStatus=='success'">
+        <table class="table table-sm table-striped table-hover" style="table-layout:fixed">
+            <thead>
+                <tr>
+                    <th class="ioi-team-col">Team</th>
+                    <th class="ioi-members-col">Members</th>
+                    <th class="ioi-operation-col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="team in teams">
+                    <td class="ioi-team-col">{[team.name]}</td>
+                    <td class="ioi-members-col">{[team.members}</td>
+                    <td class="ioi-operation-col">
+                        <a class="btn btn-sm btn-secondary" :href="'./team/'+team.name">View</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
