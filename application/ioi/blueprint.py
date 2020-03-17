@@ -17,10 +17,16 @@ def webService():
         if 'function' not in req:
             raise Exception('Function is not specified.')
         func = req['function']
-        if func == 'getTasks':
-            rsp=__service_getTasks(req)
+        if func == 'getTasksOfThisWeek':
+            rsp=__service_getTasksOfThisWeek(req)
         elif func == 'getUpdate':
             rsp=__service_getUpdate(req)
+        elif func == 'getAuthorizedTeams':
+            rsp=__service_getAuthorizedTeams(req)
+        elif func == 'getTeamMembers':
+            rsp=__service_getTeamMembers(req)
+        elif func == 'getTasksOfLastWeek':
+            rsp=__service_getTasksOfLastWeek(req)
         else:
             rsp = {'isSuccess': False, 'exceptionMessage': 'Function {} is not implemented.'.format(func)}
     except Exception as e:
@@ -99,10 +105,10 @@ def historyPage(targetUserId):
     return flask.render_template("ioi_view.html", user=user, targetUserId=targetUserId)
 
 @flask_login.login_required
-def __service_getTasks(req):
+def __service_getTasksOfThisWeek(req):
     user=flask_login.current_user
-    tasks, weekDateStr=service.getTasks(int(user.id))
-    return {'isSuccess': True, 'tasks': tasks, 'weekDate': weekDateStr}
+    tasks, weekDate=service.getTasksOfThisWeek(int(user.id))
+    return {'isSuccess': True, 'tasks': tasks, 'weekDate': weekDate.isoformat()[0:10]}
 
 @flask_login.login_required
 def __service_getUpdate(req):
@@ -111,3 +117,19 @@ def __service_getUpdate(req):
     task=int(req['task'])
     update, weekDateStr, latestUpdates=service.getUpdate(int(user.id),code=code, task=task)
     return {'isSuccess': True, 'update': update, 'weekDate': weekDateStr, 'latestUpdates': latestUpdates}
+
+@flask_login.login_required
+def __service_getAuthorizedTeams(req):
+    user=flask_login.current_user
+    teams=service.getAuthorizedTeams(int(user.id))
+    return {'isSuccess': True, 'teams': teams}
+
+def __service_getTeamMembers(req):
+    team=req['team']
+    members=service.getTeamMembers(team)
+    return {'isSuccess': True, 'members': members}
+
+def __service_getTasksOfLastWeek(req):
+    user=int(req['user'])
+    tasks, weekDate=service.getTasksOfLastWeek(user)
+    return {'isSuccess': True, 'tasks': tasks, 'weekDate': weekDate.isoformat()[0:10]}

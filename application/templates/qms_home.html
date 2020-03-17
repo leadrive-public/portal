@@ -26,32 +26,7 @@
                 <li class="breadcrumb-item active">QMS</li>
             </ol>
             <hr />
-            <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3">
-                <div class="col">
-                    <a class="qms-item" href="./manual">
-                        <h4>Quality Manual</h4>
-                        <p>Quality policy and objectives; QMS description, the business process model of the organization; definition of responsibilities for all personnel; ...</p>
-                    </a>
-                </div>
-                <div class="col">
-                    <a class="qms-item" href="procedures">
-                        <h4>Procedures</h4>
-                        <p>Procedures document the methods employed to achieve the policy defined in the QSM.</p>
-                    </a>
-                </div>
-                <div class="col">
-                    <a class="qms-item" href="wi-daily">
-                        <h4>Work Instructions (Daily Operation)</h4>
-                        <p>Work Instructions document specific tasks performed to meet the procedural requirement.</p>
-                    </a>
-                </div>
-                <div class="col">
-                    <a class="qms-item" href="wi-eng">
-                        <h4>Work Instructions (Engineering)</h4>
-                        <p>Work Instructions document specific tasks performed to meet the procedural requirement.</p>
-                    </a>
-                </div>
-            </div>
+            <sitemaster-link-group :linkitems="linkItems1"></sitemaster-link-group>
         </div>
     </div>
     <!-- Right Panel -->
@@ -150,7 +125,28 @@
             delimiters: ['{[', ']}'],
             data:function(){
                 return {
-                   
+                    linkItems1:[
+                        {
+                            link:"./manual",
+                            title:"Quality Manual",
+                            description:"Quality policy and objectives; QMS description, the business process model of the organization; definition of responsibilities for all personnel; ...",
+                        },
+                        {
+                            link:"./procedures",
+                            title:"Procedures",
+                            description:"Procedures document the methods employed to achieve the policy defined in the QSM.",
+                        },
+                        {
+                            link:"./wi-daily",
+                            title:"Work Instructions (Daily Operation)",
+                            description:"Work Instructions document specific tasks performed to meet the procedural requirement.",
+                        },
+                        {
+                            link:"./wi-eng",
+                            title:"Work Instructions (Engineering)",
+                            description:"Work Instructions document specific tasks performed to meet the procedural requirement.",
+                        },
+                    ],
                 };
             },
             computed:{

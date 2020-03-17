@@ -91,101 +91,64 @@
         padding: 0.25rem;
     }
 </style>
+<script>
+    var vm;
+    function pageLoad() {
+        vm = new Vue({
+            data:function(){
+                return {
+                    linkItems1:[
+                        {
+                            link:"/qms",
+                            title:"QMS",
+                            description:"Qaulity management system, providing a dictionary of all processes and instructions."
+                        },
+                        {
+                            link:"",
+                            title:"Q&A",
+                            description:"Q&A to address your daily issues."
+                        },
+                        {
+                            link:"/project",
+                            title:"Project",
+                            description:"Manage the projects."
+                        },
+                        {
+                            link:"/ioi",
+                            title:"IOI",
+                            description:"Items of interest, to weekly update your work and get feedback from the sponsors."
+                        },
+                        {
+                            link:"/etime",
+                            title:"eTime",
+                            description:"Charge your daily working hours to specified codes. Applicable only to ENG & MFG departments."
+                        },
+                        {
+                            link:"/estaffing",
+                            title:"eStaffing",
+                            description:"Showing labor arrangment."
+                        },
+                    ],
+                };
+            },
+            el: "#vueapp",
+        });
+    }
+</script>
 {% endblock %}
 
 {% block navbarMenuContent %}
 {% endblock %}
 
 {% block mainContent %}
-<main class="container-xl flex-grow-1" id="app">
-    <div class="link-card-deck">
-        <div class="link-card-divider" title="Qaulity management system, providing a dictionary of all processes and instructions.">
-            QMS
-        </div>
-        <a class="link-card">
-            <div class="link-card-img">
-                <img src="/img/日历.svg" />
-            </div>
-            <div class="link-card-body">
-                <div class="link-card-header">Daily Operation</div>
-                <div class="link-card-main">
-                    The processes of daily operation, like: leave, sourcing, reimbursement, ...
-                </div>
-            </div>
-        </a>
-        <a class="link-card">
-            <div class="link-card-img">
-                <img src="/img/engineering.svg" />
-            </div>
-            <div class="link-card-body">
-                <div class="link-card-header">ENG & MFG</div>
-                <div class="link-card-main">
-                    The processes of Engineering & Manufacturing, like: drawing release, design change, ...
-                </div>
-            </div>
-        </a>
-        <div class="link-card-divider">
-            Tools
-        </div>
-        <a class="link-card disabled" href="/project">
-            <div class="link-card-img">
-                <img src="/img/project.svg" />
-            </div>
-            <div class="link-card-body">
-                <div class="link-card-header">Project</div>
-                <div class="link-card-main">
-                    Manage the project
-                </div>
-            </div>
-        </a>
-        <a class="link-card" href="/etime">
-            <div class="link-card-img">
-                <img src="/img/etime.svg" />
-            </div>
-            <div class="link-card-body">
-                <div class="link-card-header">eTime</div>
-                <div class="link-card-main">
-                    Charge your daily working hours to specified codes. Applicable only to ENG & MFG departments.
-                </div>
-            </div>
-        </a>
-        <a class="link-card">
-            <div class="link-card-img">
-                <img src="/img/record.svg" />
-            </div>
-            <div class="link-card-body">
-                <div class="link-card-header">IOI</div>
-                <div class="link-card-main">
-                    Items of interest, to weekly update your work and get feedback from the sponsors.
-                </div>
-            </div>
-        </a>
-        <a class="link-card" href="/estaffing">
-            <div class="link-card-img">
-                <img src="/img/record.svg" />
-            </div>
-            <div class="link-card-body">
-                <div class="link-card-header">eStaffing</div>
-                <div class="link-card-main">
-                    Showing labor arrangment.
-                </div>
-            </div>
-        </a>
-        <!-- Training -->
-        <div class="link-card-divider">
-            Training
-        </div>
-        <a class="link-card">
-            <div class="link-card-img">
-                <img src="/img/library.svg" />
-            </div>
-            <div class="link-card-body">
-                <div class="link-card-header">Library</div>
-                <div class="link-card-main">
-                    Training material for the company and technical background.
-                </div>
-            </div>
-        </a>
-    </div>
-</main>
+
+
+<div class="flex-fill p-3 d-flex flex-column overflow-hidden" style="background-color: rgba(255,255,255,0.8)!important;">
+    <ol class="breadcrumb bg-transparent p-0 m-0 position-sticky">
+        <li class="breadcrumb-item active"><i class="home icon"></i></li>
+    </ol>
+    <hr class="my-2"/>
+    <h4>About</h4>
+    <sitemaster-link-group :linkitems="linkItems1"></sitemaster-link-group>
+</div>
 {% endblock %}

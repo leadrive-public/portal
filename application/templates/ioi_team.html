@@ -4,46 +4,141 @@
 <script src="/datetime.js"></script>
 <script src="/ioi_tasklist.js"></script>
 <script>
-    var userId={{user.id}};
+    var userId=Number("{{user.id}}");
+    var team="{{team}}";
+    Vue.component("et-lastweekhours-byuser-label",{
+        props:['user'],
+        data:function(){
+            return {
+                hours:-1,
+            }
+        },
+        template:`<span v-html="displayValue"></span>`,
+        computed:{
+            displayValue:function(){
+                if(this.hours>=0) return this.hours;
+                else return 0;
+            },
+        },
+        watch:{
+            user:function(){
+                this.getData();
+            },
+        },
+        methods:{
+            getData_beforeCallback:function(){
+                this.userName="";
+            },
+            getData_successCallback:function(rsp){
+                if (rsp.isSuccess){this.hours=Number(rsp.hours);}
+                else{this.hours=-1;}
+            },
+            getData_errorCallback:function(){
+                this.userName="";
+            },
+            getData:function(){
+                $.ajax({
+                    type: "POST",
+                    url: "/etime/service",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        function:"getLastWeekHoursByUser",
+                        user:this.user,
+                    }),
+                    dataType: "json",
+                    async: true,
+                    context: this,
+                    beforeSend: this.getData_beforeCallback,
+                    success: this.getData_successCallback,
+                    error: this.getData_errorCallback,
+                    complete: null,
+                });
+            },
+        },
+        mounted:function(){
+            this.getData();
+        },
+    });
     function pageLoad() {
         vm = new Vue({
             delimiters: ['{[', ']}'],
             data:function(){
                 return {
+                    ajaxStatus:"",
+                    members:[],
                 };
             },
+            methods:{
+                getData_beforeCallback:function(){
+                    this.ajaxStatus="running";
+                },
+                getData_successCallback:function(rsp){
+                    console.info(`${new Date().toJSON()}: Success to get data from the server!`);
+                    console.log(rsp);
+                    if (rsp.isSuccess){
+                        this.ajaxStatus="success";
+                        this.members=rsp.members;
+                    }
+                    else{
+                        this.ajaxStatus="error";
+                        this.members=[];
+                        console.warn(rsp.exceptionMessage);
+                    }
+                },
+                getData_errorCallback:function(){
+                    console.error(`${new Date().toJSON()}: Fail to fetch data from the server!`);
+                    this.tasks=null;
+                    this.ajaxStatus="error";
+                }
+            },
             el: "#vueapp",
+            mounted:function(){
+                $.ajax({
+                    type: "POST",
+                    url: "../service",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        function:"getTeamMembers",
+                        team:team,
+                    }),
+                    dataType: "json",
+                    async: true,
+                    context: this,
+                    beforeSend: this.getData_beforeCallback,
+                    success: this.getData_successCallback,
+                    error: this.getData_errorCallback,
+                    complete: null,
+                });
+            }
         });
     }
 </script>
 <style>
-    .ioi-code-col{
-        width:7.5rem;
-        max-width: 7.5rem;
-        min-width: 5rem;
+    .ioi-team-col{
+        width: 5rem;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
-    .ioi-task-col{
-        width:15rem;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-    .ioi-hours-col{
+    .ioi-members-col{
         width:5rem;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
-    .ioi-content-col{
-        width:auto;
+    .ioi-operation-col{
+        width:5rem;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
-    .ioi-edit-col{
+    .ioi-member-col{
+        width:5rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .ioi-hours-col{
         width:5rem;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -57,9 +152,43 @@
     <ol class="breadcrumb bg-transparent p-0 m-0 position-sticky">
         <li class="breadcrumb-item"><a href="/"><i class="home icon"></i></a></li>
         <li class="breadcrumb-item"><a href="/ioi">IOI</a></li>
-        <li class="breadcrumb-item active">TaskList</li>
+        <li class="breadcrumb-item"><a href="/ioi/teams">Teams</a></li>
+        <li class="breadcrumb-item active">{{team}}</li>
     </ol>
     <hr class="my-2"/>
-    <ioi-tasklist></ioi-tasklist>
+    <h4>{{team}}</h4>
+    <div class="alert alert-info" role="alert" v-if="ajaxStatus=='running'">
+        <div class="spinner-border spinner-border-sm text-info" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+        Searching data from the server...
+    </div>
+    <div class="alert alert-danger" role="alert" v-if="ajaxStatus=='error'">
+        Fail to get codes from the server!
+    </div>
+    <div v-if="ajaxStatus=='success'">
+        <table class="table table-sm table-striped table-hover" style="table-layout:fixed">
+            <thead>
+                <tr>
+                    <th class="ioi-member-col">Member</th>
+                    <th class="ioi-hours-col">Hours</th>
+                    <th class="ioi-operation-col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="member in members">
+                    <td class="ioi-team-col">
+                        <sm-username-label :user="member"></sm-username-label>
+                    </td>
+                    <td class="ioi-members-col">
+                        <et-lastweekhours-byuser-label :user="member"></et-lastweekhours-byuser-label>
+                    </td>
+                    <td class="ioi-operation-col">
+                        <a class="btn btn-sm btn-secondary" :href="'../users/'+member">View</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}

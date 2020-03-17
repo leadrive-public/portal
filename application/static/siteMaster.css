@@ -137,19 +137,24 @@
 .sidebar-nav-item:hover{
     color:var(--light);
 }
-
+.sitemaster-link-item{
+    margin-top: 0.5rem;
+    align-self: stretch;
+}
 .sitemaster-link-item >a{
-    border: 1px solid transparent;
+    border: 1px solid var(--secondary);
     color: var(--dark);
     text-decoration: none;
     display: block;
+    padding:0.5rem;
 }
 .sitemaster-link-item >a:hover{
-    border: 1px solid transparent;
+    border: 1px solid var(--dark);
     color: var(--dark);
-    text-decoration:underline;
+    text-decoration:none;
     background-color: rgba(255,255,255,0.8);
 }
-.sitemaster-link-item >a >h4{
+.sitemaster-link-item >a:hover >h4{
     color: var(--primary);
 }
+

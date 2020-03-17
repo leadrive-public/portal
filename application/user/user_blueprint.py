@@ -16,7 +16,7 @@ def service():
         func = req['function']
         if func == 'getUsers':
             rsp = __service_getUsers(req)
-        if func == 'getUser':
+        elif func == 'getUser':
             rsp = __service_getUser(req)
         else:
             rsp = {'isSuccess': False, 'exceptionMessage': 'Function {} is not implemented.'.format(func)}

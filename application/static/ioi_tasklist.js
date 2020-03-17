@@ -82,7 +82,7 @@ var taskList=Vue.component("ioi-tasklist",{
             url: "service",
             contentType: "application/json",
             data: JSON.stringify({
-                function:"getTasks",
+                function:"getTasksOfThisWeek",
             }),
             dataType: "json",
             async: true,

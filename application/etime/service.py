@@ -215,6 +215,15 @@ def getTaskDescription(code, taskNo):
             return task['title']
     return ''
 
+def getTaskTitle(code, taskNo):
+    if code==None or code=='':
+        return ''
+    tasks=getTasks(code)
+    for task in tasks:
+        if task['number']==taskNo:
+            return task['title']
+    return ''
+
 def getLocalTasks(code=''):
     tasks=[]
     try:
@@ -317,4 +326,28 @@ def setEtimes(etimes):
             conn.close()
     return
 
+def getLastWeekHoursByUser(user):
+    try:
+        conn=sqlite3.connect(databaseFilePath())
+        cursor=conn.cursor()
+
+        editableWeek=getEditableSpan()
+        lastWeekStartDate=editableWeek['startDate']+timedelta(days=-7)
+        lastWeekEndDate=editableWeek['endDate']+timedelta(days=-7)
+        startDateStr=lastWeekStartDate.isoformat()[0:10]
+        endDateStr=lastWeekEndDate.isoformat()[0:10]
+        
+        cmd='select sum(hours) from etimes where user={} and occurDate>="{}" and occurDate<="{}"'.format(user, startDateStr, endDateStr)
+        cursor.execute(cmd)
+
+        for row in cursor:
+            return row[0]
+        return 0
+    except Exception as e:
+        print(str(e))
+        return -1
+    finally:
+        if conn is not None:
+            conn.close()
+    return
 

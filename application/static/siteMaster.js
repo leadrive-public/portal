@@ -84,7 +84,7 @@ var sitemaster_linkitem=Vue.component("sitemaster-link-item",{
     template:`
     <div class="col sitemaster-link-item">
         <a :href="linkitem.link">
-            <h4>{{linkitem.title}}</h4>
+            <h4 class1="font-weight-bold">{{linkitem.title}}</h4>
             <p>{{linkitem.description}}</p>
         </a>
     </div>
@@ -98,4 +98,58 @@ var sitemaster_linkgroup=Vue.component("sitemaster-link-group",{
         <sitemaster-link-item v-for="linkitem in linkitems" :linkitem="linkitem"></sitemaster-link-item>
     </div>
     `,
+});
+
+var siteMaster_userNameLabel=Vue.component("sm-username-label",{
+    props:["user"],
+    data:function(){
+        return {
+            userName:"",
+        };
+    },
+    template:`<span>{{userDisplayName}}</span>`,
+    computed:{
+        userDisplayName:function(){
+            if (this.userName!==""){return this.userName;}
+            else{return this.user;}
+        },
+    },
+    watch:{
+        user:function(){
+            this.getUserName();
+        }
+    },
+    methods:{
+        getData_beforeCallback:function(){
+            this.userName="";
+        },
+        getData_successCallback:function(rsp){
+            if (rsp.isSuccess){this.userName=rsp.displayName;}
+            else{this.userName="";}
+        },
+        getData_errorCallback:function(){
+            this.userName="";
+        },
+        getUserName:function(){
+            $.ajax({
+                type: "POST",
+                url: "/user/service",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    function:"getUser",
+                    id:this.user,
+                }),
+                dataType: "json",
+                async: true,
+                context: this,
+                beforeSend: this.getData_beforeCallback,
+                success: this.getData_successCallback,
+                error: this.getData_errorCallback,
+                complete: null,
+            });
+        },
+    },
+    mounted:function(){
+        this.getUserName();
+    }
 });

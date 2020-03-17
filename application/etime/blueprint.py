@@ -31,6 +31,8 @@ def webService():
             rsp = __service_getStatisticsByCode(req)
         elif func == 'getActivitiesByCode':
             rsp = __service_getActivitiesByCode(req)
+        elif func == 'getLastWeekHoursByUser':
+            rsp = __service_getLastWeekHoursByUser(req)
         else:
             rsp = {'isSuccess': False, 'exceptionMessage': 'Function {} is not implemented.'.format(func)}
     except Exception as e:
@@ -139,3 +141,11 @@ def __service_getActivitiesByCode(req):
     print('__service_getActivitiesByCode')
     activities=service.getActivitiesByCode()
     return {'isSuccess': True, 'activities': activities}
+
+def __service_getLastWeekHoursByUser(req):
+    user=req['user']
+    hours=service.getLastWeekHoursByUser(user)
+    if hours>=0:
+        return {'isSuccess': True, 'hours': hours}
+    else:
+        return {'isSuccess': False}

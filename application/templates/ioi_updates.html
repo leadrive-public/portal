@@ -4,7 +4,7 @@
 <script src="/datetime.js"></script>
 <script src="/ioi_tasklist.js"></script>
 <script>
-    var userId={{user.id}};
+    var userId=Number("{{user.id}}");
     function pageLoad() {
         vm = new Vue({
             delimiters: ['{[', ']}'],
