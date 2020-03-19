@@ -104,14 +104,17 @@
                             description:"Qaulity management system, providing a dictionary of all processes and instructions."
                         },
                         {
-                            link:"",
-                            title:"Q&A",
+                            link:null,
+                            title:"Q&A (TODO)",
                             description:"Q&A to address your daily issues."
                         },
+
+                    ],
+                    linkItems2:[
                         {
-                            link:"/project",
-                            title:"Project",
-                            description:"Manage the projects."
+                            link:"/etime",
+                            title:"eTime",
+                            description:"Charge your daily working hours to specified codes. Applicable only to ENG & MFG departments."
                         },
                         {
                             link:"/ioi",
@@ -119,16 +122,16 @@
                             description:"Items of interest, to weekly update your work and get feedback from the sponsors."
                         },
                         {
-                            link:"/etime",
-                            title:"eTime",
-                            description:"Charge your daily working hours to specified codes. Applicable only to ENG & MFG departments."
+                            link:"/project",
+                            title:"Project",
+                            description:"Manage the projects."
                         },
                         {
                             link:"/estaffing",
                             title:"eStaffing",
                             description:"Showing labor arrangment."
                         },
-                    ],
+                    ]
                 };
             },
             el: "#vueapp",
@@ -150,5 +153,7 @@
     <hr class="my-2"/>
     <h4>About</h4>
     <sitemaster-link-group :linkitems="linkItems1"></sitemaster-link-group>
+    <h4>Tools</h4>
+    <sitemaster-link-group :linkitems="linkItems2"></sitemaster-link-group>
 </div>
 {% endblock %}

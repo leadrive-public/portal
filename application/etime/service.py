@@ -280,6 +280,8 @@ def getProjectTasks(code=''):
                 task['status']='closed'
             else:
                 task['status']='open'
+            if(projectTask['isGrouped']==1):
+                continue
             tasks.append(task)
     return tasks
 def delEtimes(user, timespan):
