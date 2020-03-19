@@ -5,36 +5,23 @@
 <script src="/ioi.js"></script>
 <script>
     var userId=Number("{{user.id}}");
-    var code="{{code}}";
+    var targetUserId=Number("{{targetUserId}}");
+    var code="{{project}}";
     var task=Number("{{task}}");
     function pageLoad() {
         vm = new Vue({
+            delimiters: ['{[', ']}'],
             data:function(){
                 return {
-                    code:code,
-                    task:task,
-                    update:null,
-                    latestUpdates:[],
+                    user: userId,
+                    ajaxStatus:"",
+                    update:[],
                     weekDate:new Date(),
-                    ajaxStatus:""
+                    latestUpdates:[],
+                    commentContent:"",
                 };
             },
-            el: "#vueapp",
-            computed:{
-                showLatestUpdates:function(){
-                    if(this.latestUpdates===null) return false;
-                    if (this.latestUpdates.length===0) return false;
-                    return true;
-                },
-            },
             methods:{
-                getWeekDisplayValue:function(){
-                    return `W${DateTime.getWeekNumber(this.weekDate)}: ${DateTime.getDateString(DateTime.getFirstDayOfWeek(this.weekDate))} to ${DateTime.getDateString(DateTime.getLastDayOfWeek(this.weekDate))}`;
-                },
-                getTaskDisplayValue:function(task){
-                    if (task.task===0) return "0:非特定任务";
-                    else return task.task+":"+task.title;
-                },
                 getData_beforeCallback:function(){
                     this.ajaxStatus="running";
                 },
@@ -44,41 +31,43 @@
                     if (rsp.isSuccess){
                         this.ajaxStatus="success";
                         this.update=rsp.update;
-                        this.latestUpdates=rsp.latestUpdates;
+                        console.log(rsp.weekDate);
                         this.weekDate=new Date(rsp.weekDate);
+                        this.latestUpdates=rsp.latestUpdates;
                     }
                     else{
                         this.ajaxStatus="error";
-                        this.tasks=null;
                         console.warn(rsp.exceptionMessage);
                     }
+                },
+                getData_errorCallback:function(){
+                    console.error(`${new Date().toJSON()}: Fail to fetch data from the server!`);
+                    this.ajaxStatus="error";
+                },
+                getTaskDisplayValue:function(task){
+                    if (task.task===0) return "0:非特定任务";
+                    else return task.task+":"+task.title;
                 },
                 setData_beforeCallback:function(){
 
                 },
                 setData_successCallback:function(rsp){
-                    window.location.href="/ioi/my/edit";
+
                 },
                 setData_errorCallback:function(){
 
                 },
-                getData_errorCallback:function(){
-                    console.error(`${new Date().toJSON()}: Fail to fetch data from the server!`);
-                    this.tasks=null;
-                    this.ajaxStatus="error";
-                },
-                postUpdate:function(){
-                    console.info(new Date().toISOString()+": Posting the update to the server...");
+                postComment:function(){
+                    console.info(new Date().toISOString()+": Posting the comment to the server...");
                     $.ajax({
                         type: "POST",
                         url: "/ioi/service",
                         contentType: "application/json",
                         data: JSON.stringify({
-                            function:"postUpdateOfThisWeek",
-                            code:this.code,
-                            task:this.task,
-                            content: this.update.content,
-                            weekDate: DateTime.getDateString(this.weekDate),
+                            function:"postComment",
+                            user:userId,
+                            update:this.update.id,
+                            content:this.commentContent,
                         }),
                         dataType: "json",
                         async: true,
@@ -90,15 +79,27 @@
                     });
                 }
             },
+            computed:{
+                weekLabelDisplayValue:function(){
+                    return `W${DateTime.getWeekNumber(this.weekDate)}: ${DateTime.getDateString(DateTime.getFirstDayOfWeek(this.weekDate))} to ${DateTime.getDateString(DateTime.getLastDayOfWeek(this.weekDate))}`;
+                },
+                showLatestUpdates:function(){
+                    if(this.latestUpdates===null) return false;
+                    if (this.latestUpdates.length===0) return false;
+                    return true;
+                },
+            },
+            el: "#vueapp",
             mounted:function(){
                 $.ajax({
                     type: "POST",
                     url: "/ioi/service",
                     contentType: "application/json",
                     data: JSON.stringify({
-                        function:"getUpdateOfThisWeek",
-                        code:this.code,
-                        task:this.task,
+                        function:"getUpdateOfLastWeek",
+                        user: targetUserId,
+                        code: code,
+                        task: task,
                     }),
                     dataType: "json",
                     async: true,
@@ -108,12 +109,41 @@
                     error: this.getData_errorCallback,
                     complete: null,
                 });
-            },
+            }
         });
     }
 </script>
 <style>
-
+    .ioi-code-col{
+        width: 7.5rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .ioi-task-col{
+        width: 12.5rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .ioi-operation-col{
+        width:5rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .ioi-content-col{
+        min-width: 1rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .ioi-hours-col{
+        width:5rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
 </style>
 {% endblock %}
 
@@ -122,50 +152,59 @@
     <ol class="breadcrumb bg-transparent p-0 m-0 position-sticky">
         <li class="breadcrumb-item"><a href="/"><i class="home icon"></i></a></li>
         <li class="breadcrumb-item"><a href="/ioi">IOI</a></li>
-        <li class="breadcrumb-item"><a href="edit">Edit</a></li>
+        <li class="breadcrumb-item active">Users</li>
+        <li class="breadcrumb-item"><a :href="'/ioi/users/'+user+'/lastweek'"><sm-username-label :user="user"></sm-username-label></a></li>
+        <li class="breadcrumb-item active" v-html="code+':'+task"></li>
     </ol>
     <hr class="my-2"/>
+    <h4>{{team}}</h4>
     <div class="alert alert-info" role="alert" v-if="ajaxStatus=='running'">
         <div class="spinner-border spinner-border-sm text-info" role="status">
             <span class="sr-only">Loading...</span>
         </div>
-        Fetching data from the server...
+        Searching data from the server...
     </div>
     <div class="alert alert-danger" role="alert" v-if="ajaxStatus=='error'">
-        Fail to get data from the server!
+        Fail to get codes from the server!
     </div>
     <div v-if="ajaxStatus=='success'">
-        <p v-html="getWeekDisplayValue()"></p>
+        <p v-html="weekLabelDisplayValue"></p>
         <div class="form-row m-0">
             <label class="col-sm-2 pl-0">Project:</label>
-            <label class="col-sm-10" v-html="code"></label>
+            <label class="col-sm-10">{[code]}</label>
         </div>
         <div class="form-row m-0">
             <label class="col-sm-2 pl-0">Task:</label>
-            <label class="col-sm-10" v-html="getTaskDisplayValue(update)"></label>
+            <label class="col-sm-10">{[getTaskDisplayValue(update)]}</label>
         </div>
         <div class="form-row m-0">
             <label class="col-sm-2 pl-0">Hours:</label>
-            <label class="col-sm-10" v-html="update.hours"></label>
+            <label class="col-sm-10">0</label>
         </div>
         <div class="d-flex justify-content-between mb-1">
             <label>Updates of this week:</label>
-            <button class="btn btn-primary btn-sm" @click="postUpdate">Save</button>
         </div>
-        <div class="form-group">
-            <textarea class="form-control border border-primary p-2" rows="4" v-model="update.content"></textarea>
+        <ioi-post :user="update.user" :content="update.content" :edittime="update.editTime"></ioi-post>
+        <template v-for="comment in update.comments">
+            <ioi-post :user="comment.user" :editTime="comment.editTime" :content="comment.content"></ioi-post>
+        </template>
+        <div>
+            <textarea class="form-control border border-primary p-2" rows="3" runat="server" v-model="commentContent"></textarea>
+            <div class="d-flex flex-row justify-content-start">
+                <button class="btn btn-primary btn-sm mt-2" @click="postComment">Comment</button>
+            </div>
         </div>
         <hr />
         <div v-if="!showLatestUpdates">There is not other updates.</div>
-        <div v-if="showLatestUpdates">
+        <template v-if="showLatestUpdates">
             <div class="d-flex justify-content-between mb-1">
                 <label>Latest updates and comments:</label>
                 <button class="btn btn-secondary btn-sm">View history</button>
             </div>
             <div v-for="latestUpdate in latestUpdates">
-                <ioi-post :user="latestUpdate.user" :content="latestUpdate.content" :editTime="latestUpdate.editTime"></ioi-post>
+                <ioi-post :user="latestUpdate.user" :content="latestUpdate.content" :edittime="latestUpdate.editTime"></ioi-post>
             </div>
-        </div>
+        </template>
     </div>
 </div>
 {% endblock %}

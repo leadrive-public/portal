@@ -5,13 +5,16 @@
 <script src="/ioi_tasklist.js"></script>
 <script>
     var userId=Number("{{user.id}}");
+    var targetUserId=Number("{{targetUserId}}")
     function pageLoad() {
         vm = new Vue({
             delimiters: ['{[', ']}'],
             data:function(){
                 return {
+                    user: userId,
                     ajaxStatus:"",
-                    teams:[],
+                    tasks:[],
+                    weekDate:"",
                 };
             },
             methods:{
@@ -23,28 +26,36 @@
                     console.log(rsp);
                     if (rsp.isSuccess){
                         this.ajaxStatus="success";
-                        this.teams=rsp.teams;
+                        this.tasks=rsp.tasks;
+                        this.weekDate=rsp.weekDate;
                     }
                     else{
                         this.ajaxStatus="error";
-                        this.teams=[];
+                        this.tasks=[];
+                        this.weekDate="";
                         console.warn(rsp.exceptionMessage);
                     }
                 },
                 getData_errorCallback:function(){
                     console.error(`${new Date().toJSON()}: Fail to fetch data from the server!`);
-                    this.tasks=null;
                     this.ajaxStatus="error";
+                    this.tasks=[];
+                    this.weekDate="";
+                },
+                getTaskDisplayValue:function(task){
+                    if (task.task===0) return "0:非特定任务";
+                    else return task.task+":"+task.title;
                 }
             },
             el: "#vueapp",
             mounted:function(){
                 $.ajax({
                     type: "POST",
-                    url: "service",
+                    url: "/ioi/service",
                     contentType: "application/json",
                     data: JSON.stringify({
-                        function:"getAuthorizedTeams",
+                        function:"getTasksOfLastWeek",
+                        user:targetUserId,
                     }),
                     dataType: "json",
                     async: true,
@@ -59,19 +70,31 @@
     }
 </script>
 <style>
-    .ioi-team-col{
-        width: 5rem;
+    .ioi-code-col{
+        width: 7.5rem;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
-    .ioi-members-col{
-        width:5rem;
+    .ioi-task-col{
+        width: 12.5rem;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
     .ioi-operation-col{
+        width:5rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .ioi-content-col{
+        min-width: 1rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .ioi-hours-col{
         width:5rem;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -85,9 +108,11 @@
     <ol class="breadcrumb bg-transparent p-0 m-0 position-sticky">
         <li class="breadcrumb-item"><a href="/"><i class="home icon"></i></a></li>
         <li class="breadcrumb-item"><a href="/ioi">IOI</a></li>
-        <li class="breadcrumb-item active">Teams</li>
+        <li class="breadcrumb-item active">Users</li>
+        <li class="breadcrumb-item active"><sm-username-label :user="user"></sm-username-label></li>
     </ol>
     <hr class="my-2"/>
+    <h4>{{team}}</h4>
     <div class="alert alert-info" role="alert" v-if="ajaxStatus=='running'">
         <div class="spinner-border spinner-border-sm text-info" role="status">
             <span class="sr-only">Loading...</span>
@@ -101,17 +126,29 @@
         <table class="table table-sm table-striped table-hover" style="table-layout:fixed">
             <thead>
                 <tr>
-                    <th class="ioi-team-col">Team</th>
-                    <th class="ioi-members-col">Members</th>
+                    <th class="ioi-code-col">Code</th>
+                    <th class="ioi-task-col">Task</th>
+                    <th class="ioi-hours-col">Hours</th>
+                    <th class="ioi-content-col">Content</th>
                     <th class="ioi-operation-col"></th>
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="team in teams">
-                    <td class="ioi-team-col">{[team.name]}</td>
-                    <td class="ioi-members-col">{[team.members]}</td>
+                <tr v-for="task in tasks">
+                    <td class="ioi-code-col">
+                        {[task.code]}
+                    </td>
+                    <td class="ioi-task-col">
+                        {[getTaskDisplayValue(task)]}
+                    </td>
+                    <td class="ioi-hours-col">
+                        {[task.hours]}
+                    </td>
+                    <td class="ioi-content-col">
+                        {[task.content]}
+                    </td>
                     <td class="ioi-operation-col">
-                        <a class="btn btn-sm btn-secondary" :href="'./teams/'+team.name+'/lastweek'">View</a>
+                        <a class="btn btn-sm btn-secondary" :href="'/ioi/users/'+targetUserId+'/view?code='+task.code+'&task='+task.task+'&weekDate='+weekDate">View</a>
                     </td>
                 </tr>
             </tbody>

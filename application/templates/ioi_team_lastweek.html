@@ -95,7 +95,7 @@
             mounted:function(){
                 $.ajax({
                     type: "POST",
-                    url: "../service",
+                    url: "/ioi/service",
                     contentType: "application/json",
                     data: JSON.stringify({
                         function:"getTeamMembers",
@@ -154,6 +154,7 @@
         <li class="breadcrumb-item"><a href="/ioi">IOI</a></li>
         <li class="breadcrumb-item"><a href="/ioi/teams">Teams</a></li>
         <li class="breadcrumb-item active">{{team}}</li>
+        <li class="breadcrumb-item active">Last Week</li>
     </ol>
     <hr class="my-2"/>
     <h4>{{team}}</h4>
@@ -184,7 +185,7 @@
                         <et-lastweekhours-byuser-label :user="member"></et-lastweekhours-byuser-label>
                     </td>
                     <td class="ioi-operation-col">
-                        <a class="btn btn-sm btn-secondary" :href="'../users/'+member">View</a>
+                        <a class="btn btn-sm btn-secondary" :href="'/ioi/users/'+member+'/lastweek'">View</a>
                     </td>
                 </tr>
             </tbody>

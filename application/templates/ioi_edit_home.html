@@ -2,22 +2,25 @@
 
 {% block pageStylesAndScripts %}
 <script src="/datetime.js"></script>
-<script src="/ioi_tasklist.js"></script>
+<script src="/ioi.js"></script>
 <script>
     var userId=Number("{{user.id}}");
-
     function pageLoad() {
         vm = new Vue({
             delimiters: ['{[', ']}'],
             data:function(){
                 return {
-                    user: userId,
+                    weekDate:new Date(),
                     ajaxStatus:"",
                     tasks:[],
-                    weekDate:"",
                 };
             },
+            el: "#vueapp",
             methods:{
+                getTaskDisplayValue:function(task){
+                    if (task.task===0) return "0:非特定任务";
+                    else return task.task+":"+task.title;
+                },
                 getData_beforeCallback:function(){
                     this.ajaxStatus="running";
                 },
@@ -27,35 +30,27 @@
                     if (rsp.isSuccess){
                         this.ajaxStatus="success";
                         this.tasks=rsp.tasks;
-                        this.weekDate=rsp.weekDate;
+                        this.weekDate=new Date(rsp.weekDate);
                     }
                     else{
                         this.ajaxStatus="error";
-                        this.tasks=[];
-                        this.weekDate="";
+                        this.tasks=null;
                         console.warn(rsp.exceptionMessage);
                     }
                 },
                 getData_errorCallback:function(){
                     console.error(`${new Date().toJSON()}: Fail to fetch data from the server!`);
+                    this.tasks=null;
                     this.ajaxStatus="error";
-                    this.tasks=[];
-                    this.weekDate="";
-                },
-                getTaskDisplayValue:function(task){
-                    if (task.task===0) return "0:非特定任务";
-                    else return task.task+":"+task.title;
                 }
             },
-            el: "#vueapp",
             mounted:function(){
                 $.ajax({
                     type: "POST",
                     url: "/ioi/service",
                     contentType: "application/json",
                     data: JSON.stringify({
-                        function:"getTasksOfLastWeek",
-                        user:userId,
+                        function:"getTasksOfThisWeek",
                     }),
                     dataType: "json",
                     async: true,
@@ -65,36 +60,38 @@
                     error: this.getData_errorCallback,
                     complete: null,
                 });
-            }
+            },
         });
     }
 </script>
 <style>
     .ioi-code-col{
-        width: 7.5rem;
+        width:7.5rem;
+        max-width: 7.5rem;
+        min-width: 5rem;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
     .ioi-task-col{
-        width: 12.5rem;
+        width:15rem;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
-    .ioi-operation-col{
+    .ioi-hours-col{
         width:5rem;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
     .ioi-content-col{
-        min-width: 1rem;
+        width:auto;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
-    .ioi-hours-col{
+    .ioi-edit-col{
         width:5rem;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -108,11 +105,9 @@
     <ol class="breadcrumb bg-transparent p-0 m-0 position-sticky">
         <li class="breadcrumb-item"><a href="/"><i class="home icon"></i></a></li>
         <li class="breadcrumb-item"><a href="/ioi">IOI</a></li>
-        <li class="breadcrumb-item"><a href="/ioi/teams">Users</a></li>
-        <li class="breadcrumb-item active"><sm-username-label :user="user"></sm-username-label></li>
+        <li class="breadcrumb-item active">Edit</li>
     </ol>
     <hr class="my-2"/>
-    <h4>{{team}}</h4>
     <div class="alert alert-info" role="alert" v-if="ajaxStatus=='running'">
         <div class="spinner-border spinner-border-sm text-info" role="status">
             <span class="sr-only">Loading...</span>
@@ -123,33 +118,24 @@
         Fail to get codes from the server!
     </div>
     <div v-if="ajaxStatus=='success'">
+        <h4 v-html=""></h4>
         <table class="table table-sm table-striped table-hover" style="table-layout:fixed">
             <thead>
                 <tr>
-                    <th class="ioi-code-col">Code</th>
+                    <th class="ioi-code-col">Project</th>
                     <th class="ioi-task-col">Task</th>
                     <th class="ioi-hours-col">Hours</th>
                     <th class="ioi-content-col">Content</th>
-                    <th class="ioi-operation-col"></th>
+                    <th class="ioi-edit-col"></th>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="task in tasks">
-                    <td class="ioi-code-col">
-                        {[task.code]}
-                    </td>
-                    <td class="ioi-task-col">
-                        {[getTaskDisplayValue(task)]}
-                    </td>
-                    <td class="ioi-hours-col">
-                        {[task.hours]}
-                    </td>
-                    <td class="ioi-content-col">
-                        {[task.content]}
-                    </td>
-                    <td class="ioi-operation-col">
-                        <a class="btn btn-sm btn-secondary" :href="'../users/'">View</a>
-                    </td>
+                    <td class="ioi-code-col" v-html="task.code"></td>
+                    <td class="ioi-task-col" v-html="getTaskDisplayValue(task)"></td>
+                    <td class="ioi-hours-col" v-html="task.hours"></td>
+                    <td class="ioi-content-col" v-html="task.content"></td>
+                    <td class="ioi-edit-col"><a class="btn btn-sm btn-secondary" :href="'edit?code='+task.code+'&task='+task.task">Edit</a></td>
                 </tr>
             </tbody>
         </table>

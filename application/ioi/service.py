@@ -110,8 +110,16 @@ def getUpdates(user,timespan=None,conn=None):
             if conn is not None:
                 conn.close()
     return updates
-
-def getUpdate(user, code, task, conn=None):
+def getUpdateOfLastWeek(user, code, task):
+    weekDate=etimeService.getEditableSpan()['startDate']
+    weekDate=weekDate+timedelta(days=-7)
+    update, latestUpdate=getUpdate(user=user, code=code, task=task, weekDate=weekDate)
+    return update, weekDate, latestUpdate
+def getUpdateOfThisWeek(user, code, task):
+    weekDate=etimeService.getEditableSpan()['startDate']
+    update, latestUpdate=getUpdate(user=user, code=code, task=task, weekDate=weekDate)
+    return update, weekDate, latestUpdate
+def getUpdate(user, code, task, weekDate, conn=None):
     localConn=False
     if conn is None:
         try:
@@ -123,11 +131,12 @@ def getUpdate(user, code, task, conn=None):
                 conn.close()
             return []
     try:
-        editableSpan=etimeService.getEditableSpan()
-        endDate=editableSpan['endDate']
-        weekDate=getFirstDayOfWeek(endDate)
         weekDateStr=weekDate.isoformat()[0:10]
-        cmd = 'select code, task, content, weekDate from updates where user={} and weekDate="{}" and code="{}" and task={}'.format(user, weekDateStr, code, task)
+        timespan={
+            'startDate':getFirstDayOfWeek(weekDate),
+            'endDate':getLastDayOfWeek(weekDate),
+        }
+        cmd = 'select code, task, content, weekDate, editTime, user, id from updates where user={} and weekDate="{}" and code="{}" and task={}'.format(user, weekDateStr, code, task)
         cursor = conn.execute(cmd)
         updates=[]
         for row in cursor:
@@ -136,29 +145,60 @@ def getUpdate(user, code, task, conn=None):
             update['task'] = row[1]
             update['content'] = row[2]
             update['weekDate']=row[3]
+            update['editTime']=row[4]
+            update['user']=row[5]
+            update['id']=row[6]
             updates.append(update)
         if len(updates)==0:
             update= {
                 'code': code,
                 'task': task,
                 'content': '',
-                'title':etimeService.getTaskDescription(code,task)
+                'title':etimeService.getTaskDescription(code,task),
+                'hours':etimeService.getTotalHours(user=user, code=code, task=task, timespan=timespan),
+                'weekDate':weekDateStr,
+                'editTime':"",
+                'user':user,
+                'comments':[],
+                'id':-1,
             }
         else:
             update=updates[0]
             update['title']=etimeService.getTaskDescription(code,task)
-        # generate comment
-        cmd = 'select content, editTime, id from updates where user={} and weekDate<"{}" and code="{}" and task={} order by weekDate DESC'.format(user, weekDateStr, code, task)
-        cursor = conn.execute(cmd)
+            update['hours']=etimeService.getTotalHours(user=user, code=code, task=task, timespan=timespan)
+            # generate comment
+            cmd='select user, content, editTime from comments where [update]={} order by editTime ASC '.format(update['id'])
+            cursor.execute(cmd)
+            comments=[]
+            for row in cursor:
+                comment = {}
+                comment['user']=row[0]
+                comment['content'] = row[1]
+                comment['editTime'] = row[2]
+                comments.append(comment)
+            update['comments']=comments
+
+        # generate latestUpdates
+        cmd = 'select code, task, content, weekDate, editTime, user, id from updates where user={} and weekDate<"{}" and code="{}" and task={} order by weekDate DESC'.format(user, weekDateStr, code, task)
+        cursor.execute(cmd)
         latestUpdates=[]
         for row in cursor:
             latestUpdate = {}
-            latestUpdate['user']=user
-            latestUpdate['content'] = row[0]
-            latestUpdate['editTime'] = row[1]
-            updateId=row[2]
+            latestUpdate['code'] = row[0]
+            latestUpdate['task'] = row[1]
+            latestUpdate['content'] = row[2]
+            latestUpdate['weekDate']=row[3]
+            latestUpdate['editTime']=row[4]
+            latestUpdate['user']=row[5]
+            latestUpdate['id']=row[6]
+            latestUpdate['title']=etimeService.getTaskDescription(code,task)
+            timespan={
+                'startDate':getFirstDayOfWeek(datetime.fromisoformat(latestUpdate['weekDate'])),
+                'endDate':getLastDayOfWeek(datetime.fromisoformat(latestUpdate['weekDate'])),
+            }
+            latestUpdate['hours']=etimeService.getTotalHours(user=user, code=code, task=task, timespan=timespan)
             cursor2=conn.cursor()
-            cmd='select user, content, editTime from comments where [update]={} order by editTime ASC '.format(updateId)
+            cmd='select user, content, editTime from comments where [update]={} order by editTime ASC '.format(latestUpdate['id'])
             cursor2.execute(cmd)
             comments=[]
             for row2 in cursor2:
@@ -177,7 +217,7 @@ def getUpdate(user, code, task, conn=None):
         if localConn:
             if conn is not None:
                 conn.close()
-    return update,weekDateStr,latestUpdates
+    return update,latestUpdates
 
 def getAuthorizedTeams(user:'int', conn=None):
     localConn=False
@@ -238,3 +278,42 @@ def getTeamMembers(team:'str', conn=None):
                 conn.close()
     return members
 
+def setUpdateOfThisWeek(user:'int', code:'str', task:'int', weekDate:'datetime', content:'str'):
+    try:
+        conn=sqlite3.connect(databaseFilePath())
+        cursor=conn.cursor()
+        cmd='select id from updates where user={} and code="{}" and task={} and weekDate="{}"'.format(user,code,task,weekDate.isoformat()[0:10])
+        cursor.execute(cmd)
+        id=-1
+        for row in cursor:
+            id=row[0]
+        if id>=0:
+            cmd='update updates set content="{}" where id={}'.format(content, id)
+        else:
+            cmd='insert into updates (user, code, task, weekDate, content, editTime) values({},"{}",{},"{}","{}","{}")'.format(user,code,task,weekDate.isoformat()[0:10],content,datetime.utcnow().isoformat()[0:19])
+        cursor.execute(cmd)
+        conn.commit()
+    except Exception as e:
+        print(e)
+        return False
+    finally:
+        if conn!=None:
+            conn.close()
+    return True
+
+def postComment(user:'int',update:'int',content:'str'):
+    if user<=0:
+        return False
+    try:
+        conn=sqlite3.connect(databaseFilePath())
+        cursor=conn.cursor()
+        cmd='insert into comments (user, [update], content, editTime) values({},{},"{}","{}")'.format(user,update,content,datetime.utcnow().isoformat()[0:19])
+        cursor.execute(cmd)
+        conn.commit()
+    except Exception as e:
+        print(e)
+        return False
+    finally:
+        if conn!=None:
+            conn.close()
+    return True

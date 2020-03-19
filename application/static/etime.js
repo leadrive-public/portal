@@ -403,10 +403,12 @@ Vue.component("et-editor", {
         </div>`,
     watch: {
         etimes: function (val) {
-            this.weeks = this.getWeeks();
+            if (this.etimes!==null && this.timespan!==null)
+                this.weeks = this.getWeeks();
         },
         timespan: function (val) {
-            this.weeks = this.getWeeks();
+            if (this.etimes!==null && this.timespan!==null)
+                this.weeks = this.getWeeks();
         }
     },
     computed:{
@@ -505,6 +507,7 @@ Vue.component("et-editor", {
                     wkEndDate.setTime(wkEndDate.getTime() + 7 * 24 * 60 * 60 * 1000);
                     if (wkStartDate > endDate) break;
                 }
+                console.log("Getting reorganized etimes...")
                 console.log(result);
                 return result;
             }

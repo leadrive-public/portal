@@ -251,25 +251,24 @@ def getLocalTasks(code=''):
     return tasks
 
 def getProjectTasks(code=''):
-    print('getProjectTasks')
+    # print('getProjectTasks')
     tasks=[]
-    if code=='':
-        projectId=0
-    elif code.startswith('PJ-'):
-        projectId=-1
+    projects=projectService.getProjects()
+    if code.startswith('PJ-'):
         projectCode=code[3:]
-        projects=projectService.getProjects()
+        projects2=[]
         for project in projects:
             if project['code']==projectCode:
-                projectId=project['id']
+                projects2.append(project)
                 break
-        if projectId==-1:
-            return []
+        projects=projects2
+    for project in projects:
+        projectId=project['id']
         projectTasks=projectService.getTasks(project=projectId, metadatas=['status'])
         for projectTask in projectTasks:
             task={}
             task['id']=projectTask['id']
-            task['code']=code
+            task['code']='PJ-'+project['code']
             task['number']=projectTask['number']
             task['title']=projectTask['title']
             task['status']=projectTask['status']
@@ -282,11 +281,7 @@ def getProjectTasks(code=''):
             else:
                 task['status']='open'
             tasks.append(task)
-    else:
-        return []
-    # print('getProjectTasks')
     return tasks
-    
 def delEtimes(user, timespan):
     try:
         conn=sqlite3.connect(databaseFilePath())
@@ -351,3 +346,50 @@ def getLastWeekHoursByUser(user):
             conn.close()
     return
 
+def getTotalHours(user:'int'=-1, code:'str'="", task:'int'=-1, timespan=None):
+    try:
+        conn=sqlite3.connect(databaseFilePath())
+        cursor=conn.cursor()
+
+        cmd='select sum(hours) from etimes'
+        condition=0
+        if user>=0:
+            if condition==0:
+                cmd=cmd+' where user={} '.format(user)
+                condition+=1
+            else:
+                cmd=cmd+' and user={} '.format(user)
+        if code!='':
+            if condition==0:
+                cmd=cmd+' where code="{}: '.format(code)
+                condition+=1
+            else:
+                cmd=cmd+' and code="{}" '.format(code)
+        if task>=0:
+            if condition==0:
+                cmd=cmd+' where task={} '.format(task)
+                condition+=1
+            else:
+                cmd=cmd+' and task={} '.format(task)
+        if timespan!=None:
+            startDate=timespan['startDate']
+            startDateStr=startDate.isoformat()[0:10]
+            endDate=timespan['endDate']
+            endDateStr=endDate.isoformat()[0:10]
+            if condition==0:
+                cmd=cmd+' where occurDate>="{}" and occurDate<="{}" '.format(startDateStr, endDateStr)
+                condition+=1
+            else:
+                cmd=cmd+' and occurDate>="{}" and occurDate<="{}" '.format(startDateStr, endDateStr)
+        
+        cursor.execute(cmd)
+        for row in cursor:
+            return row[0]
+        return 0
+    except Exception as e:
+        print(str(e))
+        return -1
+    finally:
+        if conn is not None:
+            conn.close()
+    return -1
