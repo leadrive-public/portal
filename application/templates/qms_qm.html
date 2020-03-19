@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}
+<title>QMS</title>
+{% endblock %}
+
+{% block navbarBrand %}
+<a class="navbar-brand">QMS</a>
+{% endblock %}
+
+{% block navbarMenuContent %}
+<li class="nav-item"><a class="nav-link">Overview</a></li>
+<li class="nav-item"><a class="nav-link" title="QMS settings" href="#">Settings</a></li>
+{% endblock %}
+
+{% block mainContent %}
+<div class="flex-fill d-flex flex-row overflow-hidden">
+    <!-- Left Panel -->
+    <div class="d-none col-auto" style="width: 0;"></div>
+
+    <!-- Main Panel -->
+    <div class="px-0 col d-flex flex-column overflow-hidden">
+        <div class="flex-fill shadow p-3" style="background-color: rgba(255,255,255,0.8)!important;">
+            <ol class="breadcrumb bg-transparent p-0">
+                <li class="breadcrumb-item"><a href="/"><i class="home icon"></i></a></li>
+                <li class="breadcrumb-item"><a href="/qms">QMS</a></li>
+                <li class="breadcrumb-item active">Manual</li>
+            </ol>
+            <hr />
+            <div class="row">
+                <div class="d-none d-md-block col-3">
+                    <ul class="nav flex-column ">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="./manual">Quality Manual</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="./procedures">Procedures</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link">Work Instructions</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="./wi-daily"><span class="ml-3">Daily Operation</span></a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="./wi-eng"><span class="ml-3">Engineering</span></a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-9">
+                    <ul class="qms-filelist">
+                        <li v-for="doc in docList">
+                            <a :href="'./files/'+doc.number" class="d-block">
+                                <p class="mb-0">{[doc.number]} | {[doc.title]}</p>
+                                <p class="small">{[doc.description]}</p>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+         
+        </div>
+    </div>
+
+    <!-- Right Panel -->
+    <div class="d-none col-auto" style="width: 0rem;">
+    </div>
+
+</div>
+{% endblock %}
+
+
+{% block pageStylesAndScripts %}
+<link type="text/css" rel="stylesheet" href="/qms.css" />
+<style>
+.nav-link.active{
+    background-color: rgba(255,255,255,0.6);
+}
+
+</style>
+<script>
+    var vm;
+    const files=[
+        {
+            number:"QM-2020",
+            title:"质量手册 2020",
+            description:"定义全公司2020年的质量目标",
+            category:""
+        }
+    ];
+    function pageLoad() {
+        console.log("page initializing...");
+        vm = new Vue({
+            delimiters: ['{[', ']}'],
+            data:function(){
+                return {
+                    docList:files,
+                };
+            },
+            el: "#vueapp",
+        });
+    }
+</script>
+{% endblock %}

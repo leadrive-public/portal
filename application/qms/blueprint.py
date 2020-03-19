@@ -22,22 +22,22 @@ def default():
 @bp.route('/manual')
 def manual():
     user=flask_login.current_user
-    return flask.render_template('qms_manual.html', user=user)
+    return flask.render_template('qms_qm.html', user=user)
 
 @bp.route('/procedures')
 def procedures():
     user=flask_login.current_user
-    return flask.render_template('qms_procedures.html', user=user)
+    return flask.render_template('qms_qp.html', user=user)
 
 @bp.route('/wi-daily')
 def workinstructions_daily():
     user=flask_login.current_user
-    return flask.render_template('qms_workinstructions_daily.html', user=user)
+    return flask.render_template('qms_wi_daily.html', user=user)
 
 @bp.route('/wi-eng')
 def workinstructions_engineering():
     user=flask_login.current_user
-    return flask.render_template('qms_workinstructions_engineering.html', user=user)
+    return flask.render_template('qms_wi_eng.html', user=user)
 
 @bp.route('/files/<string:file>')
 def files(file):

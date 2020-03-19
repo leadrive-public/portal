@@ -143,19 +143,20 @@
     align-self: stretch;
 }
 .sitemaster-link-item >a{
-    border: 1px solid var(--secondary);
+    border: 1px solid transparent;
     color: var(--dark);
     text-decoration: none;
     display: block;
     padding:0.5rem;
+    background-color: rgba(255,255,255,0.6);
 }
 .sitemaster-link-item >a:hover{
-    border: 1px solid var(--dark);
+    border: 1px solid var(--primary);
     color: var(--dark);
     text-decoration:none;
     background-color: rgba(255,255,255,0.8);
 }
-.sitemaster-link-item >a:hover >h4{
-    color: var(--primary);
+.sitemaster-link-item >a >h4{
+    color:var(--primary);
 }
 

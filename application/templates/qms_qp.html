@@ -24,34 +24,36 @@
             <ol class="breadcrumb bg-transparent p-0">
                 <li class="breadcrumb-item"><a href="/"><i class="home icon"></i></a></li>
                 <li class="breadcrumb-item"><a href="/qms">QMS</a></li>
-                <li class="breadcrumb-item active">Manual</li>
+                <li class="breadcrumb-item active">Procedures</li>
             </ol>
             <hr />
             <div class="row">
                 <div class="d-none d-md-block col-3">
                     <ul class="nav flex-column ">
                         <li class="nav-item">
-                            <a class="nav-link active" href="./manual">Quality Manual</a>
+                            <a class="nav-link" href="./manual">Quality Manual</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="./procedures">Procedures</a>
+                            <a class="nav-link active" href="./procedures">Procedures</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link">Work Instructions</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="./workinstructions-daily"><span class="ml-3">Daily Operation</span></a>
+                            <a class="nav-link" href="./wi-daily"><span class="ml-3">Daily Operation</span></a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="./workinstructions-engineering">Engineering</a>
+                            <a class="nav-link" href="./wi-eng"><span class="ml-3">Engineering</span></a>
                         </li>
                     </ul>
                 </div>
                 <div class="col-9">
-                    <ul v-for="doc in docList">
-                        <li>
-                            <p>{[doc.number]} | {[doc.title]}</p>
-                            <small>{[doc.description]}</small>
+                    <ul class="qms-filelist">
+                        <li v-for="doc in docList">
+                            <a :href="'./files/'+doc.number" class="d-block">
+                                <p class="mb-0">{[doc.number]} | {[doc.title]}</p>
+                                <p class="small">{[doc.description]}</p>
+                            </a>
                         </li>
                     </ul>
                 </div>
@@ -70,6 +72,7 @@
 
 
 {% block pageStylesAndScripts %}
+<link type="text/css" rel="stylesheet" href="/qms.css" />
 <style>
 .nav-link.active{
     background-color: rgba(255,255,255,0.6);
@@ -78,74 +81,78 @@
 </style>
 <script>
     var vm;
-    const qms=[
+    const files=[
         {
-            number:"ZQ-WI-10",
-            title:"质量手册 2020",
+            number:"QP-01",
+            title:"文件控制程序",
             description:"",
             category:""
-        }
-    ];
-    const wis=[
-        {
-            number:"ZQ-WI-10",
-            title:"新产品开发-研发",
-            description:"用于规范研发部门从事新产品开发的指导书",
-            category:"RD"
         },
         {
-            number:"ZQ-WI-11",
-            title:"技术评审规定",
+            number:"QP-02",
+            title:"记录控制程序",
             description:"",
-            category:"RD"
+            category:""
         },
         {
-            number:"ZQ-WI-12",
-            title:"研发立项流程",
-            description:"用于规定研发部的立项流程，包括NTI、IRD等",
-            category:"RD"
-        },
-        {
-            number:"ZQ-WI-13",
-            title:"研发阶段样机和物料管理办法",
+            number:"QP-03",
+            title:"管理评审控制程序",
             description:"",
-            category:"RD"
+            category:""
         },
         {
-            number:"ZQ-WI-13",
-            title:"研发阶段样机和物料管理办法",
+            number:"QP-04",
+            title:"内部审核控制程序",
             description:"",
-            category:"RD"
+            category:""
         },
         {
-            number:"ZQ-WI-13",
-            title:"研发阶段样机和物料管理办法",
+            number:"QP-05",
+            title:"纠正和预防措施控制程序",
             description:"",
-            category:"RD"
+            category:""
         },
         {
-            number:"ZQ-WI-13",
-            title:"研发阶段样机和物料管理办法",
+            number:"QP-06",
+            title:"不合格品控制程序",
             description:"",
-            category:"RD"
+            category:""
         },
         {
-            number:"ZQ-WI-13",
-            title:"研发阶段样机和物料管理办法",
+            number:"QP-07",
+            title:"人力资源控制程序",
             description:"",
-            category:"RD"
+            category:""
         },
         {
-            number:"ZQ-WI-13",
-            title:"研发阶段样机和物料管理办法",
+            number:"QP-08",
+            title:"采购控制程序",
             description:"",
-            category:"RD"
+            category:""
         },
         {
-            number:"ZQ-WI-19",
-            title:"技术文档存档规定",
-            description:"用于指导公司技术相关文档的存档操作",
-            category:"RD"
+            number:"QP-09",
+            title:"与客户有关过程控制程序",
+            description:"",
+            category:""
+        },
+        {
+            number:"QP-10",
+            title:"组织环境与相关方要求控制程序",
+            description:"",
+            category:""
+        },
+        {
+            number:"QP-11",
+            title:"风险和机遇的应对控制程序",
+            description:"",
+            category:""
+        },
+        {
+            number:"QP-12",
+            title:"新产品开发手册",
+            description:"",
+            category:""
         },
     ];
     function pageLoad() {
@@ -154,7 +161,7 @@
             delimiters: ['{[', ']}'],
             data:function(){
                 return {
-                    docList:qms,
+                    docList:files,
                 };
             },
             el: "#vueapp",
