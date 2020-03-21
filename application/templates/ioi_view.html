@@ -203,6 +203,9 @@
             </div>
             <div v-for="latestUpdate in latestUpdates">
                 <ioi-post :user="latestUpdate.user" :content="latestUpdate.content" :edittime="latestUpdate.editTime"></ioi-post>
+                <template v-for="comment in latestUpdate.comments">
+                    <ioi-post :user="comment.user" :content="comment.content" :edittime="comment.editTime"></ioi-post>
+                </template>
             </div>
         </template>
     </div>
