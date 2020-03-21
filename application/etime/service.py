@@ -114,7 +114,6 @@ def getEtimes(code="",user=0, timespan=None):
 
 def getMyEditableEtimes(user):
     editableSpan=getEditableSpan()
-    print(editableSpan)
     return None
 
 def fillTaskTitle(etimes):
@@ -137,7 +136,30 @@ def fillTaskTitle(etimes):
                 if etime['task']==task['number'] and etime['code']==task['code']:
                     etime['taskTitle']=task['title']
                     break
-
+def getFirstDayOfWeek(date):
+    result={
+        0: ( 0, 6), # Mon
+        1: (-1, 5), # Tue
+        2: (-2, 4), # Wed
+        3: (-3, 3), # Thu
+        4: (-4, 2), # Fri
+        5: (-5, 1), # Sat
+        6: (-6, 0), # Sun
+    }
+    weekDate= date+timedelta(days=result[date.weekday()][0])
+    return weekDate
+def getLastDayOfWeek(date):
+    result={
+        0: ( 0, 6), # Mon
+        1: (-1, 5), # Tue
+        2: (-2, 4), # Wed
+        3: (-3, 3), # Thu
+        4: (-4, 2), # Fri
+        5: (-5, 1), # Sat
+        6: (-6, 0), # Sun
+    }
+    weekDate= date+timedelta(days=result[date.weekday()][1])
+    return weekDate
 def getEditableSpan():
     today=datetime.utcnow().date()
     result={
@@ -152,7 +174,11 @@ def getEditableSpan():
     startDate= today+timedelta(days=result[today.weekday()][0])
     endDate  = today+timedelta(days=result[today.weekday()][1])
     return {'startDate': startDate, 'endDate': endDate}
-
+def getLastWeekSpan():
+    thisWeek=getEditableSpan()
+    endDate=thisWeek['startDate']+timedelta(days=-1)
+    startDate=getFirstDayOfWeek(endDate)
+    return {'startDate': startDate, 'endDate': endDate}
 def getCodes():
     codes=[]
     try:
@@ -173,12 +199,9 @@ def getCodes():
         if conn is not None:
             conn.close()
     # get codes from the project
-    print('get codes from the project')
     projects=projectService.getProjects(metadatas=['status'])
     if projects is not None:
-        print(projects)
         for project in projects:
-            #print(project)
             code={}
             code['code']='PJ-'+project['code']
             code['title']=project['title']
@@ -251,7 +274,6 @@ def getLocalTasks(code=''):
     return tasks
 
 def getProjectTasks(code=''):
-    # print('getProjectTasks')
     tasks=[]
     projects=projectService.getProjects()
     if code.startswith('PJ-'):
@@ -291,7 +313,6 @@ def delEtimes(user, timespan):
         startDateStr=datetime.strftime(timespan['startDate'],'%Y-%m-%d')
         endDateStr=datetime.strftime(timespan['endDate'],'%Y-%m-%d')
         cmd='delete from etimes where user={} and occurDate>="{}" and occurDate<="{}"'.format(user, startDateStr, endDateStr)
-        print(cmd)
         cursor.execute(cmd)
         conn.commit()
     except Exception as e:
@@ -363,7 +384,7 @@ def getTotalHours(user:'int'=-1, code:'str'="", task:'int'=-1, timespan=None):
                 cmd=cmd+' and user={} '.format(user)
         if code!='':
             if condition==0:
-                cmd=cmd+' where code="{}: '.format(code)
+                cmd=cmd+' where code="{}" '.format(code)
                 condition+=1
             else:
                 cmd=cmd+' and code="{}" '.format(code)
@@ -386,7 +407,10 @@ def getTotalHours(user:'int'=-1, code:'str'="", task:'int'=-1, timespan=None):
         
         cursor.execute(cmd)
         for row in cursor:
-            return row[0]
+            if row[0]!=None:
+                return row[0]
+            else:
+                return 0
         return 0
     except Exception as e:
         print(str(e))

@@ -27,12 +27,16 @@ def webService():
             rsp=__service_getUpdateOfLastWeek(req)
         elif func == 'getAuthorizedTeams':
             rsp=__service_getAuthorizedTeams(req)
+        elif func == 'getAuthorizedProjects':
+            rsp=__service_getAuthorizedProjects(req)
         elif func == 'getTeamMembers':
             rsp=__service_getTeamMembers(req)
         elif func == 'getTasksOfLastWeek':
             rsp=__service_getTasksOfLastWeek(req)
         elif func == 'postUpdateOfThisWeek':
             rsp=__service_setUpdateOfThisWeek(req)
+        elif func == 'getProjectStatisticsOfLastWeek':
+            rsp=__service_getProjectStatisticsOfLastWeek(req)
         elif func == 'postComment':
             rsp=__service_postComment(req)
         else:
@@ -193,3 +197,14 @@ def __service_postComment(req):
     content=req['content']
     service.postComment(update=update, user=user, content=content)
     return {'isSuccess':True}
+
+@flask_login.login_required
+def __service_getAuthorizedProjects(req):
+    user=int(flask_login.current_user.id)
+    projects=service.getAuthorizedProjects(user)
+    return {'isSuccess': True, 'projects': projects}
+
+def __service_getProjectStatisticsOfLastWeek(req):
+    project=req['project']
+    items=service.getProjectStatisticsOfLastWeek(project=project)
+    return {'isSuccess': True, 'items': items}

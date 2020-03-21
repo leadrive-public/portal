@@ -5,34 +5,37 @@
 <script src="/ioi.js"></script>
 <script>
     var userId=Number("{{user.id}}");
+    var project="{{project}}";
     function pageLoad() {
         vm = new Vue({
             delimiters: ['{[', ']}'],
             data:function(){
                 return {
                     ajaxStatus:"",
-                    projects:[],
+                    items:[],
                     totalHours:0,
                 };
             },
             el: "#vueapp",
             computed:{
-                activeProjects:function(){
-                    let projects=[];
-                    projects=this.projects.filter(function(item){
-                        return item.hours>0;
-                    });
-                    projects.sort(function(a,b){
-                        if(a.code>b.code) return 1;
-                        if(a.code==b.code) return 0;
-                        if(a.code<b.code) return -1;
+                sortedItems:function(){
+                    let items=this.items;
+                    items.sort(function(a,b){
+                        let strCmp=a.userName.localeCompare(b.userName);
+                        if (strCmp>0) return 1;
+                        else if (strCmp==0){
+                            if (a.task>b.task) return 1;
+                            else if (a.task==b.task) return 0;
+                            return -1;
+                        }
+                        else return -1;
                     });
                     this.totalHours=0;
-                    for(let project of projects.values()){
-                        this.totalHours+=project.hours;
+                    for(let item of items.values()){
+                        this.totalHours+=item.hours;
                     }
-                    return projects;
-                },
+                    return items;
+                }
             },
             mounted:function(){
                 $.ajax({
@@ -40,7 +43,8 @@
                     url: "/ioi/service",
                     contentType: "application/json",
                     data: JSON.stringify({
-                        function:"getAuthorizedProjects",
+                        function:"getProjectStatisticsOfLastWeek",
+                        project:project,
                     }),
                     dataType: "json",
                     async: true,
@@ -52,6 +56,10 @@
                 });
             },
             methods:{
+                getTaskDisplayValue:function(item){
+                    if (item.task==0) return "0:未定义的任务";
+                    else return `${item.task}: ${item.taskTitle}`;
+                },
                 getData_beforeCallback:function(){
                     this.ajaxStatus="running";
                     console.log(`${new Date().toJSON()}: Getting data from the server...`);
@@ -61,17 +69,17 @@
                     console.log(rsp);
                     if (rsp.isSuccess){
                         this.ajaxStatus="success";
-                        this.projects=rsp.projects;
+                        this.items=rsp.items;
                     }
                     else{
                         this.ajaxStatus="error";
-                        this.projects=[];
+                        this.items=[];
                         console.warn(rsp.exceptionMessage);
                     }
                 },
                 getData_errorCallback:function(){
                     console.error(`${new Date().toJSON()}: Fail to fetch data from the server!`);
-                    this.projects=null;
+                    this.items=[];
                     this.ajaxStatus="error";
                 }
             },
@@ -80,33 +88,33 @@
 </script>
 <style>
     .ioi-code-col{
-        width:5rem;
+        width:7.5rem;
         max-width: 7.5rem;
-        min-width: 2.5rem;
+        min-width: 5rem;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
-    .ioi-title-col{
-        width:5rem;
-        max-width: 15rem;
-        min-width: 2.5rem;
+    .ioi-task-col{
+        width:15rem;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
     .ioi-hours-col{
         width:5rem;
-        max-width: 5rem;
-        min-width: 5rem;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
-    .ioi-operation-col{
+    .ioi-content-col{
+        width:auto;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .ioi-edit-col{
         width:5rem;
-        max-width: 5rem;
-        min-width: 5rem;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -119,7 +127,9 @@
     <ol class="breadcrumb bg-transparent p-0 m-0 position-sticky">
         <li class="breadcrumb-item"><a href="/"><i class="home icon"></i></a></li>
         <li class="breadcrumb-item"><a href="/ioi">IOI</a></li>
-        <li class="breadcrumb-item active">Projects</li>
+        <li class="breadcrumb-item"><a href="/ioi/projects">Projects</a></li>
+        <li class="breadcrumb-item active">{{project}}</li>
+        <li class="breadcrumb-item active">Last Week</li>
     </ol>
     <hr class="my-2"/>
     <div class="alert alert-info" role="alert" v-if="ajaxStatus=='running'">
@@ -135,25 +145,25 @@
         <table class="table table-sm table-striped table-hover" style="table-layout:fixed">
             <thead>
                 <tr>
-                    <th class="ioi-code-col">Project</th>
-                    <th class="ioi-title-col">Title</th>
-                    <th class="ioi-hours-col">Hours</th>
-                    <th class="ioi-hours-col"></th>
-                    <th class="ioi-operation-col"></th>
+                    <th class="ioi-user-col">Member</th>
+                    <th class="ioi-task-col">Task</th>
+                    <th class="ioi-hour-col">Hours</th>
+                    <th class="ioi-pcnt-col"></th>
+                    <th class="ioi-oper-col"></th>
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="project in activeProjects">
-                    <td class="ioi-code-col">{[project.code]}</td>
-                    <td class="ioi-title-col">{[project.title]}</td>
-                    <td class="ioi-hours-col">{[project.hours]}</td>
-                    <th class="ioi-hours-col">
+                <tr v-for="item in sortedItems">
+                    <td class="ioi-code-col">{[item.userName]}</td>
+                    <td class="ioi-task-col">{[getTaskDisplayValue(item)]}</td>
+                    <td class="ioi-hour-col">{[item.hours]}</td>
+                    <th class="ioi-pcnt-col">
                         <div class="progress">
-                            <div class="progress-bar" role="progressbar" :style="{ width: project.hours/totalHours*100+'%'}" :aria-valuenow="project.hours/totalHours*100" aria-valuemin="0" aria-valuemax="100"></div>
+                            <div class="progress-bar" role="progressbar" :style="{ width: item.hours/totalHours*100+'%'}" :aria-valuenow="item.hours/totalHours*100" aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
                     </th>
-                    <td class="ioi-operation-col">
-                        <a class="btn btn-sm btn-secondary" :href="'/ioi/projects/'+project.code+'/lastweek'">View</a>
+                    <td class="ioi-oper-col">
+                        <a class="btn btn-sm btn-secondary" :href="'/ioi/users/'+item.user+'/view?code='+item.project+'&task='+item.task+'&weekDate='+item.weekDate">View</a>
                     </td>
                 </tr>
             </tbody>

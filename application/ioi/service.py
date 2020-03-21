@@ -317,3 +317,39 @@ def postComment(user:'int',update:'int',content:'str'):
         if conn!=None:
             conn.close()
     return True
+
+def getAuthorizedProjects(user:'int'):
+    projects=etimeService.getCodes()
+    for project in projects:
+        timespan=etimeService.getLastWeekSpan()
+        project['hours']=etimeService.getTotalHours(code=project['code'], timespan=timespan)
+    return projects
+
+def getProjectStatisticsOfLastWeek(project:'str'):
+    timespan=etimeService.getLastWeekSpan()
+    etimes=etimeService.getEtimes(code=project,timespan=timespan)
+    items=[]
+    for etime in etimes:
+        find=False
+        for item in items:
+            if item['task']==etime['task'] and item['user']==etime['user']:
+                item['hours']+=etime['hours']
+                find=True
+                break
+        if not find:
+            items.append({
+                'task':etime['task'],
+                'user':etime['user'],
+                'hours':etime['hours'],
+                'project':project,
+                'weekDate':timespan['startDate'].isoformat()
+            })
+    for item in items:
+        user=userService.getUserById(item['user'])
+        if user==None:
+            item['userName']=item['user']
+        else:
+            item['userName']=user.displayName
+        item['taskTitle']=etimeService.getTaskTitle(code=project,taskNo=item['task'])
+    return items
+        

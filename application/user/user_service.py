@@ -85,6 +85,7 @@ def validate(userName, password):
                 # print((attr_dict["userPrincipalName"], attr_dict["displayName"]))
                 return {'userName': attr_dict["userPrincipalName"], 'displayName': attr_dict["displayName"]}
         except Exception as e:
+            print(e)
             pass
         pass
     

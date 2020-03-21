@@ -153,7 +153,7 @@
         <li class="breadcrumb-item"><a href="/"><i class="home icon"></i></a></li>
         <li class="breadcrumb-item"><a href="/ioi">IOI</a></li>
         <li class="breadcrumb-item active">Users</li>
-        <li class="breadcrumb-item"><a :href="'/ioi/users/'+user+'/lastweek'"><sm-username-label :user="user"></sm-username-label></a></li>
+        <li class="breadcrumb-item"><a :href="'/ioi/users/'+targetUserId+'/lastweek'"><sm-username-label :user="targetUserId"></sm-username-label></a></li>
         <li class="breadcrumb-item active" v-html="code+':'+task"></li>
     </ol>
     <hr class="my-2"/>
