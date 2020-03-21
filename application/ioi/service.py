@@ -7,7 +7,8 @@ from datetime import datetime
 from datetime import timedelta
 
 from ..etime import service as etimeService
-from .. import user as userService 
+from .. import user as userService
+from .. import mail
 
 def databaseFilePath():
     return os.path.join(os.path.dirname(__file__),'../database/ioi.sqlite3')
@@ -307,9 +308,62 @@ def postComment(user:'int',update:'int',content:'str'):
     try:
         conn=sqlite3.connect(databaseFilePath())
         cursor=conn.cursor()
-        cmd='insert into comments (user, [update], content, editTime) values({},{},"{}","{}")'.format(user,update,content,datetime.utcnow().isoformat()[0:19])
+        editTime=datetime.utcnow().isoformat()[0:19]
+        cmd='insert into comments (user, [update], content, editTime) values({},{},"{}","{}")'.format(user,update,content,editTime)
         cursor.execute(cmd)
         conn.commit()
+
+        posts=[]
+
+        cmd='select user, content, editTime from comments where [update]={} order by editTime DESC'.format(update)
+        cursor.execute(cmd)
+        for row in cursor:
+            posts.append({
+                'author': row[0],
+                'content': row[1],
+                'editTime': row[2],
+            })
+        cmd='select user,content, editTime, code, task, weekDate from updates where id={}'.format(update)
+        cursor.execute(cmd)
+        for row in cursor:
+            posts.append({
+                'author': row[0],
+                'content': row[1],
+                'editTime': row[2],
+            })
+            code=row[3]
+            task=row[4]
+            weekDate=row[5]
+            postOwner=row[0]
+
+        body='''
+        <style>
+        p{{margin:0;}}
+        pre{{margin:0;}}
+        </style>
+        <p><strong>WeekDate: {}</strong></p>
+        <p><strong>Project: {}</strong></p>
+        <p><strong>Task: {}</strong></p>
+        '''.format(weekDate, code, task)
+        body+='''
+        <a href="http://portal.leadrive.com/ioi/users/{}/view?code={}&task={}&weekDate={}">Click the link to view the details online.</a>
+        <hr />
+        '''.format(postOwner,code,task,weekDate)
+        receivers=[]
+        postIndex=0
+        for post in posts:
+            postIndex+=1
+            author=userService.getUserById(post['author'])
+            if receivers.count(author.name)==0:
+                receivers.append(author.name)
+            body+='''
+            <p><strong>{}</strong>&nbsp;<small>{}</small></p>
+            <pre>{}</pre>
+            <br />'''.format(author.displayName, post['editTime'], post['content'])
+            if postIndex==1:
+                subject='{}在IOI中添加了评论'.format(author.displayName)
+
+        mail.sendEmail(receivers=receivers,subject=subject,content=body, sender='etime@leadrive.com')
     except Exception as e:
         print(e)
         return False
