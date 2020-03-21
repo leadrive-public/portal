@@ -20,12 +20,18 @@ def sendEmail(receivers, subject:'str', content:'str', sender:'str'=None):
     if sender==None:
         sender=senderDefault
     message['From']=sender
-    message['To']='jun.zhu@leadrive.com'
+    for receiverIndex in range(len(receivers)):
+        receiver=receivers[receiverIndex]
+        if receiverIndex==0:
+            messageTo=receiver
+        else:
+            messageTo+=';'+receiver
+    message['To']=messageTo
     message['Subject']=subject
 
     try:
         print(message.as_string())
-        smtp.sendmail(senderDefault, receivers,message.as_string())
+        smtp.sendmail(senderDefault, receivers, message.as_string())
         print ("邮件发送成功")
         smtp.quit()
     except smtplib.SMTPException as e:
