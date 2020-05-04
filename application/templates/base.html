@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0, user-scalable=no" />
@@ -38,6 +39,7 @@
     {% block pageStylesAndScripts %}
     {% endblock %}
 </head>
+
 <body>
     {% block body %}
     <!-- Background -->
@@ -49,15 +51,16 @@
     <div class="siteMaster-bodyContainer vh-100-sm" id="vueapp">
         <!-- Header -->
         {% block header %}
-        <header style="">
-            <nav class="navbar navbar-expand-sm navbar-transparent navbar-dark">
+        <header>
+            <nav class="navbar navbar-expand-sm navbar-transparent navbar-dark p-2">
                 <button class="navbar-appBtn" onclick="$('#sidebar-modal').modal('show')">
                     <span class="navbar-appBtn-icon"></span>
                 </button>
                 {% block navbarBrand %}
                 <a class="navbar-brand">LEADRIVE</a>
                 {% endblock %}
-                <button class="navbar-toggler" aria-expanded="false" aria-controls="navbarCollapse" aria-label="Toggle navigation" type="button" data-target="#navbarCollapse" data-toggle="collapse">
+                <button class="navbar-toggler" aria-expanded="false" aria-controls="navbarCollapse"
+                    aria-label="Toggle navigation" type="button" data-target="#navbarCollapse" data-toggle="collapse">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarCollapse">
@@ -75,7 +78,8 @@
                     {% block userButton %}
                     <div class="dropdown">
                         {% if user is defined%}
-                        <button type="button" class="btn btn-success btn-circular" id="userDropdownMenuButton" data-toggle="dropdown" data-boundary="viewport" aria-haspopup="true" aria-expanded="false">
+                        <button type="button" class="btn btn-success btn-circular" id="userDropdownMenuButton"
+                            data-toggle="dropdown" data-boundary="viewport" aria-haspopup="true" aria-expanded="false">
                             <i class="user icon"></i>
                         </button>
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdownMenuButton">
@@ -84,11 +88,12 @@
                         </div>
                         {% else %}
                         <script>
-                            function sitemaster_directToLogin(){
+                            function sitemaster_directToLogin() {
                                 window.location = "/login";
                             }
                         </script>
-                        <button type="button" class="btn btn-secondary btn-circular" id="userDropdownMenuButton" onclick="sitemaster_directToLogin()">
+                        <button type="button" class="btn btn-secondary btn-circular" id="userDropdownMenuButton"
+                            onclick="sitemaster_directToLogin()">
                             <i class="user icon"></i>
                         </button>
                         {% endif %}
@@ -137,7 +142,7 @@
             <div class="container-fluid">
                 <div class="row">
                     <div class="col">
-                        <hr class="m-2 d-none"/>
+                        <hr class="m-2 d-none" />
                         <p class="small text-center text-light m-2">&copy; 2019 - LEADRIVE TECHNOLOGY CO., LTD</p>
                     </div>
                 </div>
@@ -148,7 +153,8 @@
     </div>
     {% endblock %}
     <div class="modal" id="sidebar-modal" role="dialog">
-        <div class="modal-dialog" role="document" style="margin-top: 0; margin-left: 0; margin-bottom: 0; width:15rem; height: 100%; display: flex;">
+        <div class="modal-dialog" role="document"
+            style="margin-top: 0; margin-left: 0; margin-bottom: 0; width:15rem; height: 100%; display: flex;">
             <div class="modal-content" style="background-color: black;border: none; border-radius: 0;">
                 <div class="modal-body sidebar">
                     <div class="sidebar-header">
@@ -156,19 +162,20 @@
                             <span class="navbar-appBtn-icon"></span>
                         </button>
                         <a href="/" class="sidebar-header-home">
-                            HOME<i class="arrow right icon"></i>
+                            PORTAL<i class="arrow right icon"></i>
                         </a>
                     </div>
-                    <hr  style="border: none; height: 1px; background-color:rgba(255,255,255,0.2); margin: 0.25rem 0;"/>
+                    <hr style="border: none; height: 1px; background-color:rgba(255,255,255,0.2); margin: 0.25rem 0;" />
                     <div class="sidebar-nav-header">About</div>
                     <a class="sidebar-nav-item" href="/qms">QMS</a>
                     <a class="sidebar-nav-item">Q&amp;A</a>
-                    <hr class="sidebar-nav-divider"/>
+                    <hr class="sidebar-nav-divider" />
                     <div class="sidebar-nav-header">Tools</div>
-                    <a class="sidebar-nav-item" href="/etime" >eTime</a>
+                    <a class="sidebar-nav-item" href="/etime">eTime</a>
                     <a class="sidebar-nav-item" href="/ioi">IOI</a>
                     <a class="sidebar-nav-item" href="/project">Project</a>
                     <a class="sidebar-nav-item" href="/estaffing">eStaffing</a>
+                    <a class="sidebar-nav-item" href="/dcc">DCC</a>
                 </div>
             </div>
         </div>
@@ -176,13 +183,14 @@
     {% block footerScript %}
     <script>
         try {
-            console.info((new Date()).toJSON()+": Page is initializing...");
+            console.info((new Date()).toJSON() + ": Page is initializing...");
             pageLoad();
         }
-        catch(e)  {
+        catch (e) {
             console.warn(e)
         }
     </script>
     {% endblock %}
 </body>
+
 </html>

@@ -1,0 +1,217 @@
+{% extends "dcc/base.html" %}
+{% block pageStylesAndScripts %}
+<script>
+    function pageLoad() {
+        vm = new Vue({
+            data: function () {
+                return {
+                    selectedView: "",
+                    projects: [],
+                    categories: [],
+                    project: "",
+                    category: "",
+                    title: "",
+                    description: "",
+                    part: null,
+                };
+            },
+            el: "#vueapp",
+            methods: {
+                projectInputChanged: function () {
+                    console.log("getProject...")
+
+                },
+                getProjects_successCallback: function (rsp) {
+                    if (rsp.isSuccess) {
+                        console.log("Projects are fetched from the server!");
+                        this.projects = rsp.projects;
+                    }
+                },
+                getCategories_successCallback: function (rsp) {
+                    if (rsp.isSuccess) {
+                        console.log("Categories are fetched from the server!");
+                        this.categories = rsp.categories;
+                    }
+                },
+                getPartNumber: function () {
+                    let pn = "";
+                    if (this.project.length == 6 && this.category.length == 2) {
+                        pn = this.project + "-" + this.category + "????";
+                    }
+                    else {
+                        pn = "";
+                    }
+                    return pn;
+                },
+                createPart: function () {
+                    if (this.project.length != 6 || this.category.length != 2 || this.title.length == 0) return;
+                    $.ajax({
+                        type: "POST",
+                        url: "/dcc/service",
+                        contentType: "application/json",
+                        data: JSON.stringify({
+                            function: "create",
+                            project: this.project,
+                            category: this.category,
+                            title: this.title,
+                            description: this.description,
+                        }),
+                        dataType: "json",
+                        async: true,
+                        context: this,
+                        beforeSend: null,
+                        success: this.create_successCallback,
+                        error: this.create_errorCallback,
+                        complete: null,
+                    });
+                },
+                create_successCallback: function (rsp) {
+                    if (!rsp.isSuccess) this.create_errorCallback();
+                    this.part = rsp.part;
+                    console.info(this.part);
+                    this.selectedView = "success";
+                },
+                create_errorCallback: function () {
+                    this.selectedView = "error";
+                },
+                createAnotherPart: function () {
+                    this.selectedView = "create";
+                    part = null;
+                },
+                editPart: function () {
+                    console.log('Go to edit page...');
+                    window.location.href = "/dcc/parts/" + this.part.number;
+
+                },
+            },
+            mounted: function () {
+                $.ajax({
+                    type: "POST",
+                    url: "/dcc/service",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        function: "getAllProjects",
+                    }),
+                    dataType: "json",
+                    async: true,
+                    context: this,
+                    beforeSend: null,
+                    success: this.getProjects_successCallback,
+                    error: null,
+                    complete: null,
+                });
+                $.ajax({
+                    type: "POST",
+                    url: "/dcc/service",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        function: "getCategories",
+                    }),
+                    dataType: "json",
+                    async: true,
+                    context: this,
+                    beforeSend: null,
+                    success: this.getCategories_successCallback,
+                    error: null,
+                    complete: null,
+                });
+                this.selectedView = "create";
+            },
+        });
+    }
+</script>
+<style>
+
+</style>
+{% endblock %}
+
+{% block mainContent %}
+<div class="flex-fill p-3 d-flex flex-column overflow-hidden"
+    style="background-color: rgba(255,255,255,0.9)!important;">
+    <ol class="breadcrumb bg-transparent p-0 m-0">
+        <li class="breadcrumb-item"><a href="/"><i class="home icon"></i></a></li>
+        <li class="breadcrumb-item"><a href="/dcc">DCC</a></li>
+        <li class="breadcrumb-item active">New</li>
+    </ol>
+    <hr class="my-2" />
+    <div class="alert bg-white shadow" v-if="selectedView=='create'">
+        <p class="font-weight-bold">Apply a new document</p>
+        <hr>
+        <div>
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label text-sm-right">Number</label>
+                <label class="col-sm-10 col-form-label font-weight-bold" v-html="getPartNumber()"></label>
+            </div>
+            <div class="form-group row">
+                <label for="projectInput" class="col-sm-2 col-form-label text-sm-right">Project</label>
+                <div class="col-sm-10">
+                    <select class="custom-select" id="projectInput" v-model="project">
+                        <option disabled value="">Please select the project</option>
+                        <option v-for="project in projects" :value="project.code"
+                            v-html="project.code + ' - ' + project.title">
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="categoryInput" class="col-sm-2 col-form-label text-sm-right">Category</label>
+                <div class="col-sm-10">
+                    <select class="custom-select" id="categoryInput" v-model="category">
+                        <option disabled value="">Please select the category</option>
+                        <option v-for="category in categories" :value="category.code"
+                            v-html="category.code + ' - ' + category.title">
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="titleInput" class="col-sm-2 col-form-label text-sm-right">Title</label>
+                <div class="col-sm-10">
+                    <input type="email" class="form-control" id="titleInput" v-model="title" />
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label text-sm-right"></label>
+                <div class="col-sm-10">
+                    <button class="btn btn-primary" @click="createPart">New</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="alert alert-info shadow" v-if="selectedView=='success'">
+        <p class="font-weight-bold">New document is created!</p>
+        <hr />
+        <div>
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label text-sm-right">Number</label>
+                <label class="col-sm-10 col-form-label font-weight-bold" v-html="part.number" v-if="part!=null"></label>
+            </div>
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label text-sm-right">Title</label>
+                <label class="col-sm-10 col-form-label font-weight-bold" v-html="part.title" v-if="part!=null"></label>
+            </div>
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label text-sm-right">Create By</label>
+                <label class="col-sm-10 col-form-label font-weight-bold" v-html="part.createBy"
+                    v-if="part!=null"></label>
+            </div>
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label text-sm-right">Create Time</label>
+                <label class="col-sm-10 col-form-label font-weight-bold" v-html="part.createTime"
+                    v-if="part!=null"></label>
+            </div>
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label text-sm-right"></label>
+                <div class="col-sm-10">
+                    <button class="btn btn-primary" @click="editPart">Edit This Part</button>
+                    <button class="btn btn-secondary" @click="createAnotherPart">Create Another Part</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="alert alert-danger shadow" v-if="selectedView=='error'">
+        <p class="font-weight-bold">Error!</p>
+        <hr />
+    </div>
+</div>
+{% endblock %}

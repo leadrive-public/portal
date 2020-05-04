@@ -1,0 +1,43 @@
+{% extends "dcc/base.html" %}
+
+{% block pageStylesAndScripts %}
+<script>
+    function pageLoad() {
+        vm = new Vue({
+            data: function () {
+                return {
+                    linkitems: [
+                        {
+                            link: "/dcc/new",
+                            title: "New",
+                            description: "Apply a new document."
+                        },
+                        {
+                            link: "/dcc/search",
+                            title: "Search",
+                            description: "Search documents."
+                        },
+                    ],
+                };
+            },
+            el: "#vueapp",
+        });
+    }
+</script>
+<style>
+
+</style>
+{% endblock %}
+
+
+
+{% block mainContent %}
+<div class="flex-fill p-3 d-flex flex-column overflow-hidden sitemaster-maincontent">
+    <ol class="breadcrumb bg-transparent p-0 m-0">
+        <li class="breadcrumb-item"><a href="/"><i class="home icon"></i></a></li>
+        <li class="breadcrumb-item active">DCC</li>
+    </ol>
+    <hr class="my-2" />
+    <sitemaster-link-group :linkitems="linkitems"></sitemaster-link-group>
+</div>
+{% endblock %}

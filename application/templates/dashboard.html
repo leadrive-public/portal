@@ -6,87 +6,86 @@
 
 {% block pageStylesAndScripts %}
 <style>
-    .link-card-deck
-    {
+    .link-card-deck {
         display: flex;
         flex-flow: row wrap;
         position: relative;
-        background-color:transparent;
+        background-color: transparent;
     }
-    .link-card-divider
-    {
-        margin:0.75rem;
+
+    .link-card-divider {
+        margin: 0.75rem;
         width: 100%;
         color: white;
         font-size: large;
     }
-    .link-card
-    {
+
+    .link-card {
         height: 7.5rem;
         width: 20rem;
-        margin:0.75rem;
+        margin: 0.75rem;
         display: flex;
         flex-flow: row nowrap;
         align-items: flex-start;
         justify-content: flex-start;
-        background-color: rgba(255,255,255,0.8)!important;
+        background-color: rgba(255, 255, 255, 0.8) !important;
         color: #343a40;
         text-decoration: none;
     }
-    .link-card:hover
-    {
+
+    .link-card:hover {
         color: #343a40;
         text-decoration: none;
     }
-    .link-card-img
-    {
+
+    .link-card-img {
         height: 3rem;
         width: 3rem;
         flex: none;
         margin: 0.5rem;
     }
-    .link-card-img > img
-    {
+
+    .link-card-img>img {
         height: 100%;
-        width:100%;
+        width: 100%;
     }
-    .link-card-body
-    {
+
+    .link-card-body {
         height: 100%;
         display: flex;
         flex: 1 1 1px;
         flex-flow: column nowrap;
     }
-    .link-card .link-card-text
-    {
+
+    .link-card .link-card-text {
         text-align: center;
-        color:#0062cc;
+        color: #0062cc;
         margin: 0.5rem 0 0 0;
     }
-    .link-card-header
-    {
+
+    .link-card-header {
         flex: none;
         font-weight: bold;
         text-overflow: ellipsis;
         font-size: large;
         margin: 0.25rem;
     }
-    .link-card-main
-    {
+
+    .link-card-main {
         flex: 1 1 1px;
         overflow: hidden;
         text-overflow: ellipsis;
         margin: 0.25rem;
     }
-    .link-card-main>p
-    {
+
+    .link-card-main>p {
         height: 100%;
         margin: 0;
         overflow: hidden;
         text-overflow: ellipsis;
     }
-    .link-card-footer
-    {
+
+    .link-card-footer {
         flex: none;
         padding: 0.25rem;
     }
@@ -95,41 +94,46 @@
     var vm;
     function pageLoad() {
         vm = new Vue({
-            data:function(){
+            data: function () {
                 return {
-                    linkItems1:[
+                    linkItems1: [
                         {
-                            link:"/qms",
-                            title:"QMS",
-                            description:"Qaulity management system, providing a dictionary of all processes and instructions."
+                            link: "/qms",
+                            title: "QMS",
+                            description: "Qaulity management system, providing a dictionary of all processes and instructions."
                         },
                         {
-                            link:null,
-                            title:"Q&A (TODO)",
-                            description:"Q&A to address your daily issues."
+                            link: null,
+                            title: "Q&A (TODO)",
+                            description: "Q&A to address your daily issues."
                         },
 
                     ],
-                    linkItems2:[
+                    linkItems2: [
                         {
-                            link:"/etime",
-                            title:"eTime",
-                            description:"Charge your daily working hours to specified codes. Applicable only to ENG & MFG departments."
+                            link: "/etime",
+                            title: "eTime",
+                            description: "Charge your daily working hours to specified codes. Applicable only to ENG & MFG departments."
                         },
                         {
-                            link:"/ioi",
-                            title:"IOI",
-                            description:"Items of interest, to weekly update your work and get feedback from the sponsors."
+                            link: "/ioi",
+                            title: "IOI",
+                            description: "Items of interest, to weekly update your work and get feedback from the sponsors."
                         },
                         {
-                            link:"/project",
-                            title:"Project",
-                            description:"Manage the projects."
+                            link: "/project",
+                            title: "Project",
+                            description: "Manage the projects."
                         },
                         {
-                            link:"/estaffing",
-                            title:"eStaffing",
-                            description:"Showing labor arrangment."
+                            link: "/estaffing",
+                            title: "eStaffing",
+                            description: "Showing labor arrangment."
+                        },
+                        {
+                            link: "/dcc",
+                            title: "DCC",
+                            description: "Document Control Center."
                         },
                     ]
                 };
@@ -146,11 +150,12 @@
 {% block mainContent %}
 
 
-<div class="flex-fill p-3 d-flex flex-column overflow-hidden" style="background-color: rgba(255,255,255,0.8)!important;">
+<div class="flex-fill p-3 d-flex flex-column overflow-hidden"
+    style="background-color: rgba(255,255,255,0.8)!important;">
     <ol class="breadcrumb bg-transparent p-0 m-0 position-sticky">
         <li class="breadcrumb-item active"><i class="home icon"></i></li>
     </ol>
-    <hr class="my-2"/>
+    <hr class="my-2" />
     <h4>About</h4>
     <sitemaster-link-group :linkitems="linkItems1"></sitemaster-link-group>
     <h4>Tools</h4>

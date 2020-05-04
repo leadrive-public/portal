@@ -1,0 +1,193 @@
+{% extends "dcc/base.html" %}
+{% block pageStylesAndScripts %}
+<script src="/dcc/input-file.js"></script>
+<script>
+    partNumber = "{{partNumber}}";
+    function pageLoad() {
+        vm = new Vue({
+            data: function () {
+                return {
+                    ajaxStatus: "",
+                    part: null,
+                    attachments: [],
+                    partNumber: partNumber,
+                    files: [],
+
+                };
+            },
+            el: "#vueapp",
+            methods: {
+                getPart_beforeCallback: function () {
+                    this.ajaxStatus = "getting";
+                    console.log("get part...");
+                },
+                getPart_successCallback: function (rsp) {
+                    if (!rsp.isSuccess) this.getPart_errorCallback();
+                    console.info(rsp.part);
+                    this.part = rsp.part;
+                    this.attachments = this.part.attachments;
+                    this.ajaxStatus = "success";
+                },
+                getPart_errorCallback: function () {
+                    this.ajaxStatus = "error";
+                },
+                savePart_beforeSendCallback: function () {
+                    this.ajaxStatus = "posting";
+                },
+                savePart_successCallback: function (rsp) {
+                    window.location.reload();
+                },
+                uploadFile: function () {
+                    console.log(this.files);
+                    for (let file of this.files.values()) {
+                        console.log(file);
+                        let attachment = {
+                            id: "",
+                            size: file.size,
+                            name: file.name,
+                            status: "reading",
+                        };
+                        this.attachments.push(attachment);
+                        console.log(file.name + " is reading...");
+                        let reader = new FileReader();
+                        reader.onload = function () {
+                            attachment.status = "readReady";
+                            attachment.content = Array.prototype.slice.call(new Uint8Array(reader.result));
+                            //console.log(attachment.content);
+                        };
+                        reader.readAsArrayBuffer(file);
+                        console.log(this.part);
+                    }
+                },
+                SaveHandler: function () {
+                    $.ajax({
+                        type: "POST",
+                        url: "/dcc/service",
+                        contentType: "application/json",
+                        data: JSON.stringify({
+                            function: "savePart",
+                            number: this.part.number,
+                            title: this.part.title,
+                            description: this.part.description,
+                            attachments: this.attachments,
+                        }),
+                        dataType: "json",
+                        async: true,
+                        context: this,
+                        beforeSend: this.savePart_beforeSendCallback,
+                        success: this.savePart_successCallback,
+                        error: null,
+                        complete: null,
+                    });
+                },
+                deleteAttachmentButtonClick: function (attachment) {
+                    let index = this.attachments.findIndex(function (item) {
+                        return item === attachment;
+                    });
+                    this.attachments.splice(index, 1);
+                }
+            },
+            mounted: function () {
+                $.ajax({
+                    type: "POST",
+                    url: "/dcc/service",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        function: "getPart",
+                        number: this.partNumber,
+                    }),
+                    dataType: "json",
+                    async: true,
+                    context: this,
+                    beforeSend: this.getPart_beforeCallback,
+                    success: this.getPart_successCallback,
+                    error: this.getPart_errorCallback,
+                    complete: null,
+                });
+                this.selectedView = "create";
+            },
+        });
+    }
+</script>
+<style>
+
+</style>
+{% endblock %}
+
+{% block mainContent %}
+<div class="flex-fill p-3 d-flex flex-column overflow-hidden"
+    style="background-color: rgba(255,255,255,0.9)!important;">
+    <ol class="breadcrumb bg-transparent p-0 m-0">
+        <li class="breadcrumb-item"><a href="/"><i class="home icon"></i></a></li>
+        <li class="breadcrumb-item"><a href="/dcc">DCC</a></li>
+        <li class="breadcrumb-item active">Parts</li>
+        <li class="breadcrumb-item active" v-html="partNumber"></li>
+    </ol>
+    <hr class="my-2" />
+    <div class="alert bg-white shadow" v-if="ajaxStatus=='success'">
+        <p class="font-weight-bold">Part Number: <span v-html="partNumber"></span></p>
+        <hr>
+        <div>
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label text-sm-right">Title</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" v-model="part.title" />
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label text-sm-right">Attechments</label>
+                <div class="col-sm-10">
+                    <b-input-group>
+                        <b-input-group-prepend>
+                            <b-button @click="uploadFile">Upload</b-button>
+                        </b-input-group-prepend>
+                        <b-form-file v-model="files" placeholder="Choose a file or drop it here..."
+                            drop-placeholder="Drop file here..." multiple="true">
+                        </b-form-file>
+                    </b-input-group>
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th class="small">File</th>
+                                <th class="small">Size</th>
+                                <th class="small">Operation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="attachment in attachments">
+                                <td>
+                                    <span v-html="attachment.name"></span>
+                                    <template v-if="'status' in attachment">
+                                        <span v-if="attachment.status=='reading'"
+                                            class="font-italic font-weight-light text-warning">(reading...)</span>
+                                        <span v-if="attachment.status=='readReady'"
+                                            class="font-italic font-weight-light text-success">(new)</span>
+                                    </template>
+                                </td>
+                                <td v-html="attachment.size"></td>
+                                <td>
+                                    <button class="btn btn-sm btn-danger"
+                                        @click="deleteAttachmentButtonClick(attachment)">Delete</button>
+                                </td>
+                            </tr>
+                            <tr v-if="attachments.length==0">
+                                <td colspan="4">No attachment.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label text-sm-right"></label>
+                <div class="col-sm-10">
+                    <button class="btn btn-primary" @click="SaveHandler">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="alert alert-info shadow" v-if="ajaxStatus=='posting'">
+        <p class="font-weight-bold">Posting data to the server...<span v-html="partNumber"></span></p>
+        <hr>
+    </div>
+</div>
+{% endblock %}
