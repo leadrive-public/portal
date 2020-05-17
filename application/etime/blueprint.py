@@ -34,6 +34,12 @@ def webService():
             rsp = __service_getActivitiesByCode(req)
         elif func == 'getLastWeekHoursByUser':
             rsp = __service_getLastWeekHoursByUser(req)
+        elif func == 'getStatisticsOfLastWeek':
+            rsp = __service_getStatisticsOfLastWeek(req)
+        elif func == 'getStatisticsOfThisWeek':
+            rsp = __service_getStatisticsOfThisWeek(req)
+        elif func == 'getStatisticsByMonth':
+            rsp = __service_getStatisticsByMonth(req)
         else:
             rsp = {'isSuccess': False,
                    'exceptionMessage': 'Function {} is not implemented.'.format(func)}
@@ -47,14 +53,21 @@ def webService():
 
 @bp.route('/')
 @flask_login.login_required
-def default():
+def defaultPage():
+    user = flask_login.current_user
+    return flask.render_template("etime/home.html", user=user)
+
+
+@bp.route('/edit')
+@flask_login.login_required
+def editPage():
     user = flask_login.current_user
     return flask.render_template("etime/home.html", user=user)
 
 
 @bp.route('/statistics')
 @flask_login.login_required
-def default():
+def statisticsPage():
     user = flask_login.current_user
     return flask.render_template("etime/statistics.html", user=user)
 
@@ -168,3 +181,18 @@ def __service_getLastWeekHoursByUser(req):
         return {'isSuccess': True, 'hours': hours}
     else:
         return {'isSuccess': False}
+
+
+def __service_getStatisticsOfLastWeek(req):
+    statistics = service.getStatisticsOfLastWeek()
+    return {'isSuccess': True, 'statistics': statistics}
+
+
+def __service_getStatisticsByMonth(req):
+    statistics = service.getStatisticsByMonth()
+    return {'isSuccess': True, 'statistics': statistics}
+
+
+def __service_getStatisticsOfThisWeek(req):
+    statistics = service.getStatisticsOfThisWeek()
+    return {'isSuccess': True, 'statistics': statistics}

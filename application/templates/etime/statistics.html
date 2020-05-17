@@ -1,0 +1,744 @@
+{% extends "project_base.html" %}
+{% block title %}
+<title>eTime</title>
+{% endblock %}
+
+{% block navbarBrand %}
+<a class="navbar-brand" href="/etime">eTime</a>
+{% endblock %}
+
+{% block navbarMenuContent %}
+<li class="nav-item"><a class="nav-link" href="/etime/edit">Edit</a></li>
+<li class="nav-item"><a class="nav-link" href="/etime/statistics">Statistics</a></li>
+<li class="nav-item"><a class="nav-link" href="/ioi">IOI</a></li>
+{% endblock %}
+
+{% block mainContent %}
+<div class="flex-fill p-3 d-flex flex-column overflow-hidden"
+    style="background-color: rgba(255,255,255,0.9)!important;">
+    <ol class="breadcrumb bg-transparent p-0 m-0 position-sticky mb-3">
+        <li class="breadcrumb-item"><a href="/"><i class="home icon"></i></a></li>
+        <li class="breadcrumb-item"><a href="/etime">eTime</a></li>
+        <li class="breadcrumb-item active">Statistics</li>
+    </ol>
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="home-tab" data-toggle="tab" href="#this-week-tab" role="tab"
+                aria-controls="home" aria-selected="true">This Week</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="profile-tab" data-toggle="tab" href="#last-week-tab" role="tab"
+                aria-controls="profile" aria-selected="false">Last Week</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="contact-tab" data-toggle="tab" href="#bymonth-tab" role="tab"
+                aria-controls="contact" aria-selected="false">By Month</a>
+        </li>
+    </ul>
+    <div class="tab-content">
+        <section class="tab-pane fade active show py-2" id="this-week-tab" role="tabpanel">
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="this-week-view-type" id="this-week-view-by-user"
+                    value="by-user" v-model="thisWeekViewType">
+                <label class="form-check-label" for="this-week-view-by-user">By User</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="this-week-view-type" id="this-week-view-by-code"
+                    value="by-code" v-model="thisWeekViewType">
+                <label class="form-check-label" for="this-week-view-by-code">By Code</label>
+            </div>
+            <et-stat-byuser-table :items="statisticsOfThisWeekByUser" v-if="thisWeekViewType=='by-user'">
+            </et-stat-byuser-table>
+            <et-stat-bycode-table :items="statisticsOfThisWeekByCode" v-if="thisWeekViewType=='by-code'">
+            </et-stat-bycode-table>
+        </section>
+        <section class="tab-pane fade py-2" id="last-week-tab" role="tabpanel">
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="last-week-view-type" id="last-week-view-by-user"
+                    value="by-user" v-model="lastWeekViewType">
+                <label class="form-check-label" for="last-week-view-by-user">By User</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="last-week-view-type" id="last-week-view-by-code"
+                    value="by-code" v-model="lastWeekViewType">
+                <label class="form-check-label" for="last-week-view-by-code">By Code</label>
+            </div>
+            <et-stat-byuser-table :items="statisticsOfLastWeekByUser" v-if="lastWeekViewType=='by-user'">
+            </et-stat-byuser-table>
+            <et-stat-bycode-table :items="statisticsOfLastWeekByCode" v-if="lastWeekViewType=='by-code'">
+            </et-stat-bycode-table>
+        </section>
+        <section class="tab-pane fade py-2" id="bymonth-tab" role="tabpanel">
+            <div class="form-row align-items-center">
+                <div class="col-auto">
+                    <select class="form-control col-auto" v-model="selectedMonth">
+                        <option disabled value="">Please choose...</option>
+                        <option v-for="monthItem in displayDataByMonth" :value="monthItem.month">{[monthItem.month]}
+                        </option>
+                    </select>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="month-view-type" id="month-view-by-user"
+                        value="by-user" v-model="monthViewType">
+                    <label class="form-check-label" for="month-view-by-user">By User</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="month-view-type" id="month-view-by-code"
+                        value="by-code" v-model="monthViewType">
+                    <label class="form-check-label" for="month-view-by-code">By Code</label>
+                </div>
+            </div>
+
+            <et-stat-byuser-table :items="displayDataByMonthByUser" v-if="monthViewType=='by-user'">
+            </et-stat-byuser-table>
+            <et-stat-bycode-table :items="displayDataByMonthByCode" v-if="monthViewType=='by-code'">
+            </et-stat-bycode-table>
+        </section>
+    </div>
+</div>
+{% endblock %}
+
+{% block pageStylesAndScripts %}
+<style>
+    .et-stat-byuser-usercell {
+        width: 10rem;
+        min-width: 10rem;
+        max-width: 10rem;
+    }
+
+    .et-stat-byuser-codecell {
+        width: 10rem;
+        min-width: 10rem;
+        max-width: 10rem;
+        text-indent: 2rem;
+    }
+
+    .et-stat-byuser-hourcell {
+        width: auto;
+    }
+
+    .et-stat-bycode-codecell {
+        width: 10rem;
+        min-width: 10rem;
+        max-width: 10rem;
+    }
+
+    .et-stat-bycode-usercell {
+        width: 10rem;
+        min-width: 10rem;
+        max-width: 10rem;
+        text-indent: 2rem;
+    }
+
+    .et-stat-bycode-hourcell {
+        width: 5rem;
+        min-width: 5rem;
+        max-width: 5rem;
+    }
+
+    .et-stat-bycode-pctcell {
+        width: 5rem;
+        min-width: 5rem;
+        max-width: 5rem;
+    }
+
+    .et-stat-bycode-progcell {
+        width: auto;
+    }
+</style>
+<script>
+    var vm;
+    Vue.component("et-stat-byuser-table", {
+        props: ["items"],
+        delimiters: ['{[', ']}'],
+        data: function () {
+            return {
+                selectItem: null,
+            };
+        },
+        template: `
+        <table class="table table-hover table-sm table-bordered fixed">
+            <thead >
+                <tr>
+                    <th>User</th>
+                    <th>Hours</th>
+                </tr>
+            </thead>
+            <tbody>
+                <template v-for="item in items">
+                    <tr>
+                        <td @click="itemClickHandler(item)" class="et-stat-byuser-usercell">
+                            {[getUserDisplayName(item)]}
+                            <i class="float-right" :class="{'angle right icon':!isItemSelected(item), 'angle down icon':isItemSelected(item)}"></i>
+                        </td>
+                        <td class="et-stat-byuser-hourcell"><span :class="{'text-success':item.hours==40, 'text-warning': item.hours<40}">{[item.hours]}</span></td>
+                    </tr>
+                    <template v-for="code in item.codes">
+                        <tr class="" :class="{'d-none': !isItemSelected(item)}">
+                            <td class="" v-html="code.code" class="et-stat-byuser-codecell"></td>
+                            <td v-html="code.hours" class="et-stat-byuser-hourcelll"></td>
+                        </tr>
+                    </template>
+                </template>
+                <template v-if="items.length==0">
+                    <tr>
+                        <td col-span="2">No data is found!</td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+        `,
+        methods: {
+            itemClickHandler: function (item) {
+                if (this.selectItem === item) this.selectItem = null;
+                else this.selectItem = item;
+            },
+            isItemSelected: function (item) {
+                return item === this.selectItem;
+            },
+            getUserDisplayName: function (user) {
+                if (user.user != null) { return user.user.displayName; } else { return user.userId; }
+            }
+        }
+    });
+    Vue.component("et-stat-bycode-table", {
+        props: ["items"],
+        delimiters: ['{[', ']}'],
+        data: function () {
+            return {
+                selectItem: null,
+            };
+        },
+        template: `
+        <table class="table table-hover table-sm table-bordered fixed">
+            <thead >
+                <tr>
+                    <th>Code</th>
+                    <th>Hours</th>
+                    <th>Percentage</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <template v-for="item in items">
+                    <tr>
+                        <td @click="itemClickHandler(item)" class="et-stat-bycode-codecell">
+                            <span>{[item.code]}</span>
+                            <i class="float-right" :class="{'angle right icon':!isItemSelected(item), 'angle down icon':isItemSelected(item)}"></i>
+                        </td>
+                        <td class="et-stat-bycode-hourcell">{[item.hours]}</td>
+                        <td class="et-stat-bycode-pctcell">{[(item.pct*100).toFixed(0)+"%"]}</td>
+                        <td class="et-stat-bycode-progcell">
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" :style="'width:'+item.pct*100+'%'" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                        </td>
+                    </tr>
+                    <template v-for="user in item.users">
+                        <tr class="" :class="{'d-none': !isItemSelected(item)}">
+                            <td class="" class="et-stat-bycode-usercell font-weight-light small">
+                                <span>{[getUserDisplayName(user)]}</span>
+                            </td>
+                            <td v-html="user.hours" class="et-stat-bycode-hourcell font-weight-light small"></td>
+                            <td class="et-stat-bycode-pctcell font-weight-light small">{[(user.pct*100).toFixed(0)+"%"]}</td>
+                            <td class="et-stat-bycode-progcell">
+                               
+                            </td>
+                        </tr>
+                    </template>
+                </template>
+                <template v-if="items.length==0">
+                    <tr>
+                        <td col-span="2">No data is found!</td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+        `,
+        computed: {
+
+        },
+        methods: {
+            itemClickHandler: function (item) {
+                if (this.selectItem === item) this.selectItem = null;
+                else this.selectItem = item;
+            },
+            isItemSelected: function (item) {
+                return item === this.selectItem;
+            },
+            getUserDisplayName: function (user) {
+                if (user.user != null) { return user.user.displayName; } else { return user.userId; }
+            }
+        }
+    });
+    function pageLoad() {
+        vm = new Vue({
+            el: '#vueapp',
+            delimiters: ["{[", "]}"],
+            data: function () {
+                return {
+                    statisticsOfLastWeek: null,
+                    statisticsOfThisWeek: null,
+                    statisticsByMonth: null,
+                    users: null,
+                    statisticsOfThisWeekByUser: [],
+                    statisticsOfThisWeekByCode: [],
+                    statisticsOfLastWeekByUser: [],
+                    statisticsOfLastWeekByCode: [],
+                    displayDataByMonth: [],
+                    thisWeekViewType: "by-code",
+                    lastWeekViewType: "by-code",
+                    monthViewType: "by-code",
+                    selectedMonth: "",
+                    displayDataByMonthByUser: [],
+                    displayDataByMonthByCode: [],
+                }
+            },
+            methods: {
+                getUser: function (userId) {
+                    let index = this.users.findIndex(item => { return item.id == userId; });
+                    if (index >= 0) { return this.users[index]; } else { console.warn(userId + " not found"); return null; }
+                },
+                getStatisticsOfLastWeek_successCallback: function (rsp) {
+                    if (!rsp.isSuccess) return;
+                    console.info(new Date().toJSON() + ": Successfully get statistics data of last week!");
+                    this.statisticsOfLastWeek = rsp.statistics;
+                },
+                getStatisticsOfThisWeek_successCallback: function (rsp) {
+                    console.info(new Date().toJSON() + ": Successfully get statistics data of this week!");
+                    this.statisticsOfThisWeek = rsp.statistics;
+                },
+                getStatisticsByMonth_successCallback: function (rsp) {
+                    console.info(new Date().toJSON() + ": Successfully get statistics data of monthes!");
+                    this.statisticsByMonth = rsp.statistics;
+                    console.log(this.statisticsByMonth);
+                },
+                getUsers_successCallback: function (rsp) {
+                    if (rsp.isSuccess == false) return;
+                    console.info(new Date().toJSON() + ": Successfully get user data!");
+                    this.users = rsp.users;
+                },
+                generateDataOfThisWeek: function () {
+                    console.info(new Date().toJSON() + ": Generating display data of this week...");
+                    // generating display data grouped by user
+                    let data = [];
+                    let totalHours = 0;
+                    this.statisticsOfThisWeek.forEach(element => {
+                        totalHours += element.hours;
+                        let index = data.findIndex(item => { return (item.userId == element.user); });
+                        if (index < 0) {
+                            data.push({
+                                userId: element.user,
+                                user: this.getUser(element.user),
+                                hours: element.hours,
+                                codes: [{
+                                    code: element.code,
+                                    hours: element.hours,
+                                }],
+                            });
+                        } else {
+                            data[index].hours += element.hours;
+                            let codeIndex = data[index].codes.findIndex(code => { return (code.code == element.code); });
+                            if (codeIndex < 0) {
+                                data[index].codes.push({
+                                    code: element.code,
+                                    hours: element.hours,
+                                });
+                            } else {
+                                data[index].code[codeIndex].hours += element.hours;
+                            }
+                        }
+                    });
+                    data.sort(function (a, b) {
+                        if (a.user !== null && b.user != null) {
+                            if (a.user.printName > b.user.printName) return 1;
+                            else return -1;
+                        } else {
+                            return 1;
+                        }
+                    });
+                    data.forEach(item => {
+                        item.codes.sort(function (a, b) {
+                            if (a.hours < b.hours) return 1;
+                            else return -1;
+                        })
+                    });
+                    this.statisticsOfThisWeekByUser = data;
+                    data = [];
+                    // generating display data grouped by code
+                    this.statisticsOfThisWeek.forEach(element => {
+                        let index = data.findIndex(item => { return (item.code == element.code); });
+                        if (index < 0) {
+                            data.push({
+                                code: element.code,
+                                hours: element.hours,
+                                users: [{
+                                    userId: element.user,
+                                    user: this.getUser(element.user),
+                                    hours: element.hours,
+                                }],
+                            });
+                        } else {
+                            data[index].hours += element.hours;
+                            let userIndex = data[index].users.findIndex(user => { return (user.userId == element.user); });
+                            if (userIndex < 0) {
+                                data[index].users.push({
+                                    userId: element.user,
+                                    user: this.getUser(element.user),
+                                    hours: element.hours,
+                                });
+                            } else {
+                                data[index].users[userIndex].hours += element.hours;
+                            }
+                        }
+                    });
+                    data.forEach(item => {
+                        item.pct = item.hours / totalHours;
+                        item.users.forEach(userItem => {
+                            userItem.pct = userItem.hours / item.hours;
+                        });
+                    });
+                    data.sort(function (a, b) {
+                        if (a.hours < b.hours) return 1;
+                        else return -1;
+
+                    });
+                    data.forEach(item => {
+                        item.users.sort(function (a, b) {
+                            if (a.hours < b.hours) return 1;
+                            else return -1;
+                        })
+                    });
+                    this.statisticsOfThisWeekByCode = data;
+                },
+                generateDataOfMonthes: function () {
+                    console.info(new Date().toJSON() + ": Generating display data of monthes...");
+                    //get monthes
+                    let data = [];
+                    this.statisticsByMonth.forEach(item => {
+                        data.push({
+                            month: item.month,
+                            displayDataByUser: this.generateDataByUser(item.statistics),
+                            displayDataByCode: this.generateDataByCode(item.statistics),
+                        });
+                    });
+                    data.sort(function (a, b) {
+                        if (a.month < b.month) return 1; else return -1;
+                    });
+                    this.displayDataByMonth = data;
+                    //console.log(this.displayDataByMonth);
+                },
+                generateDataOfLastWeek: function () {
+                    console.info(new Date().toJSON() + ": Generating display data of last week...");
+                    // generating display data grouped by user
+                    let data = [];
+                    let totalHours = 0;
+                    this.statisticsOfLastWeek.forEach(element => {
+                        totalHours += element.hours;
+                        let index = data.findIndex(item => { return (item.userId == element.user); });
+                        if (index < 0) {
+                            data.push({
+                                userId: element.user,
+                                user: this.getUser(element.user),
+                                hours: element.hours,
+                                codes: [{
+                                    code: element.code,
+                                    hours: element.hours,
+                                }],
+                            });
+                        } else {
+                            data[index].hours += element.hours;
+                            let codeIndex = data[index].codes.findIndex(code => { return (code.code == element.code); });
+                            if (codeIndex < 0) {
+                                data[index].codes.push({
+                                    code: element.code,
+                                    hours: element.hours,
+                                });
+                            } else {
+                                data[index].code[codeIndex].hours += element.hours;
+                            }
+                        }
+                    });
+                    data.sort(function (a, b) {
+                        if (a.user !== null && b.user != null) {
+                            if (a.user.printName > b.user.printName) return 1;
+                            else return -1;
+                        } else {
+                            return 1;
+                        }
+                    });
+                    data.forEach(item => {
+                        item.codes.sort(function (a, b) {
+                            if (a.hours < b.hours) return 1;
+                            else return -1;
+                        })
+                    });
+                    this.statisticsOfLastWeekByUser = data;
+                    //console.log(data);
+                    data = [];
+                    // generating display data grouped by code
+                    this.statisticsOfLastWeek.forEach(element => {
+                        let index = data.findIndex(item => { return (item.code == element.code); });
+                        if (index < 0) {
+                            data.push({
+                                code: element.code,
+                                hours: element.hours,
+                                users: [{
+                                    userId: element.user,
+                                    user: this.getUser(element.user),
+                                    hours: element.hours,
+                                }],
+                            });
+                        } else {
+                            data[index].hours += element.hours;
+                            let userIndex = data[index].users.findIndex(user => { return (user.userId == element.user); });
+                            if (userIndex < 0) {
+                                data[index].users.push({
+                                    userId: element.user,
+                                    user: this.getUser(element.user),
+                                    hours: element.hours,
+                                });
+                            } else {
+                                data[index].users[userIndex].hours += element.hours;
+                            }
+                        }
+                    });
+                    data.forEach(item => {
+                        item.pct = item.hours / totalHours;
+                        item.users.forEach(userItem => {
+                            userItem.pct = userItem.hours / item.hours;
+                        });
+                    });
+                    data.sort(function (a, b) {
+                        if (a.hours < b.hours) return 1;
+                        else return -1;
+
+                    });
+                    data.forEach(item => {
+                        item.users.sort(function (a, b) {
+                            if (a.hours < b.hours) return 1;
+                            else return -1;
+                        })
+                    });
+                    this.statisticsOfLastWeekByCode = data;
+                    //console.log(this.statisticsOfLastWeekByCode);
+                },
+                generateDataByUser: function (rawInputs) {
+                    let data = [];
+                    let totalHours = 0;
+                    rawInputs.forEach(element => {
+                        totalHours += element.hours;
+                        let index = data.findIndex(item => { return (item.userId == element.user); });
+                        if (index < 0) {
+                            data.push({
+                                userId: element.user,
+                                user: this.getUser(element.user),
+                                hours: element.hours,
+                                codes: [{
+                                    code: element.code,
+                                    hours: element.hours,
+                                }],
+                            });
+                        } else {
+                            data[index].hours += element.hours;
+                            let codeIndex = data[index].codes.findIndex(code => { return (code.code == element.code); });
+                            if (codeIndex < 0) {
+                                data[index].codes.push({
+                                    code: element.code,
+                                    hours: element.hours,
+                                });
+                            } else {
+                                data[index].code[codeIndex].hours += element.hours;
+                            }
+                        }
+                    });
+                    data.sort(function (a, b) {
+                        if (a.user !== null && b.user != null) {
+                            if (a.user.printName > b.user.printName) return 1;
+                            else return -1;
+                        } else {
+                            return 1;
+                        }
+                    });
+                    data.forEach(item => {
+                        item.codes.sort(function (a, b) {
+                            if (a.hours < b.hours) return 1;
+                            else return -1;
+                        })
+                    });
+                    return data;
+                },
+                generateDataByCode: function (rawInput) {
+                    let data = [];
+                    let totalHours = 0;
+                    // generating display data grouped by code
+                    rawInput.forEach(element => {
+                        totalHours += element.hours;
+                        let index = data.findIndex(item => { return (item.code == element.code); });
+                        if (index < 0) {
+                            data.push({
+                                code: element.code,
+                                hours: element.hours,
+                                users: [{
+                                    userId: element.user,
+                                    user: this.getUser(element.user),
+                                    hours: element.hours,
+                                }],
+                            });
+                        } else {
+                            data[index].hours += element.hours;
+                            let userIndex = data[index].users.findIndex(user => { return (user.userId == element.user); });
+                            if (userIndex < 0) {
+                                data[index].users.push({
+                                    userId: element.user,
+                                    user: this.getUser(element.user),
+                                    hours: element.hours,
+                                });
+                            } else {
+                                data[index].users[userIndex].hours += element.hours;
+                            }
+                        }
+                    });
+                    data.forEach(item => {
+                        item.pct = item.hours / totalHours;
+                        item.users.forEach(userItem => {
+                            userItem.pct = userItem.hours / item.hours;
+                        });
+                    });
+                    data.sort(function (a, b) {
+                        if (a.hours < b.hours) return 1;
+                        else return -1;
+
+                    });
+                    data.forEach(item => {
+                        item.users.sort(function (a, b) {
+                            if (a.hours < b.hours) return 1;
+                            else return -1;
+                        })
+                    });
+                    return data;
+                },
+            },
+            watch: {
+                users() {
+                    if (this.users == null) return;
+                    this.users.forEach(user => {
+                        let firstName = user.name.substring(0, user.name.indexOf(".")).toLowerCase();
+                        let lastName = user.name.substring(user.name.indexOf(".") + 1, user.name.indexOf("@")).toLowerCase();
+                        user.firstName = firstName;
+                        user.lastName = lastName;
+                        user.printName = lastName + ", " + firstName;
+                    });
+                    if (this.statisticsOfThisWeek != null) {
+                        this.generateDataOfThisWeek();
+                    }
+                    if (this.statisticsOfLastWeek != null) {
+                        this.generateDataOfLastWeek();
+                    }
+                    if (this.statisticsByMonth != null) {
+                        this.generateDataOfMonthes();
+                    }
+                },
+                statisticsOfThisWeek() {
+                    if (this.users != null && this.statisticsOfThisWeek != null) {
+                        this.generateDataOfThisWeek();
+                    }
+                },
+                statisticsOfLastWeek() {
+                    if (this.users != null && this.statisticsOfLastWeek != null) {
+                        this.generateDataOfLastWeek();
+                    }
+                },
+                statisticsByMonth() {
+                    if (this.users != null && this.statisticsByMonth != null) {
+                        this.generateDataOfMonthes();
+                    }
+                },
+                selectedMonth() {
+                    this.displayDataByMonthByCode = [];
+                    this.displayDataByMonthByUser = [];
+                    this.displayDataByMonth.forEach(item => {
+                        if (item.month == this.selectedMonth) {
+                            this.displayDataByMonthByCode = item.displayDataByCode;
+                            this.displayDataByMonthByUser = item.displayDataByUser;
+                        }
+                    });
+                }
+            },
+            mounted: function () {
+                $.ajax({
+                    type: "POST",
+                    url: "/etime/service",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        function: "getStatisticsOfLastWeek",
+                    }),
+                    dataType: "json",
+                    async: true,
+                    context: this,
+                    beforeSend: null,
+                    success: this.getStatisticsOfLastWeek_successCallback,
+                    error: null,
+                    complete: null,
+                });
+                $.ajax({
+                    type: "POST",
+                    url: "/etime/service",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        function: "getStatisticsOfThisWeek",
+                    }),
+                    dataType: "json",
+                    async: true,
+                    context: this,
+                    beforeSend: null,
+                    success: this.getStatisticsOfThisWeek_successCallback,
+                    error: null,
+                    complete: null,
+                });
+                $.ajax({
+                    type: "POST",
+                    url: "/etime/service",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        function: "getStatisticsByMonth",
+                    }),
+                    dataType: "json",
+                    async: true,
+                    context: this,
+                    beforeSend: null,
+                    success: this.getStatisticsByMonth_successCallback,
+                    error: null,
+                    complete: null,
+                });
+                $.ajax({
+                    type: "POST",
+                    url: "/user/service",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        function: "getUsers",
+                    }),
+                    dataType: "json",
+                    async: true,
+                    context: this,
+                    beforeSend: null,
+                    success: this.getUsers_successCallback,
+                    error: null,
+                    complete: null,
+                });
+            }
+        });
+    }
+</script>
+<style>
+    .hourCell {
+        white-space: nowrap;
+        word-wrap: none;
+        font-weight: normal;
+    }
+
+    .hourTotalCell {
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
