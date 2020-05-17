@@ -8,18 +8,18 @@
 {% endblock %}
 
 {% block navbarMenuContent %}
+<li class="nav-item"><a class="nav-link" href="/etime/statistics">Statistics</a></li>
 <li class="nav-item"><a class="nav-link" href="/ioi">IOI</a></li>
-<li class="nav-item"><a class="nav-link" href="">History</a></li>
-<li class="nav-item"><a class="nav-link" href="">Statistics</a></li>
 {% endblock %}
 
 {% block mainContent %}
-<div class="flex-fill p-3 d-flex flex-column overflow-hidden" style="background-color: rgba(255,255,255,0.8)!important;">
+<div class="flex-fill p-3 d-flex flex-column overflow-hidden"
+    style="background-color: rgba(255,255,255,0.8)!important;">
     <ol class="breadcrumb bg-transparent p-0 m-0 position-sticky">
         <li class="breadcrumb-item"><a href="/"><i class="home icon"></i></a></li>
         <li class="breadcrumb-item active">eTime</li>
     </ol>
-    <hr class="my-2"/>
+    <hr class="my-2" />
     <et-editor :etimes="etimes" :timespan="timespan"></et-editor>
 </div>
 {% endblock %}
