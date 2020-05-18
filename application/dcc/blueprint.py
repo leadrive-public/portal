@@ -125,3 +125,13 @@ def __service_savePart(req):
     attachments = req['attachments']
     service.savePart(number, title, description="", attachments=attachments)
     return {'isSuccess': True}
+
+
+def __service_search(req):
+    numberSearchStr = req['numberSearchStr']
+    titleSearchStr = req['titleSearchStr']
+    limit = int(req['limit'])
+    offset = int(req['offset'])
+    result, count = service.search(numberSearchStr=numberSearchStr,
+                                   titleSearchStr=titleSearchStr, limit=limit, offset=offset)
+    return {'isSuccess': True, 'result': result, 'count': count, 'limit': limit, 'offset': offset}

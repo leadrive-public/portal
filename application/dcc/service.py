@@ -228,3 +228,61 @@ def createFile(id: str, content):
     file = open(filePath, 'wb')
     file.write(bytes(content))
     file.close()
+
+
+def search(numberSearchStr: str, titleSearchStr: str, limit: int = 0, offset: int = 0):
+    try:
+        conn = sqlite3.connect(databaseFilePath())
+        cursor = conn.cursor()
+        if numberSearchStr != "" and titleSearchStr != "":
+            cmd = 'select id, number, title, description, status, createBy, createTime, releaseBy, releaseTime from parts where number like "%{}%" and title like "%{}%" order by number'.format(
+                numberSearchStr, titleSearchStr)
+        elif numberSearchStr != "":
+            cmd = 'select id, number, title, description, status, createBy, createTime, releaseBy, releaseTime from parts where number like "%{}%" order by number'.format(
+                numberSearchStr)
+        elif titleSearchStr != "":
+            cmd = 'select id, number, title, description, status, createBy, createTime, releaseBy, releaseTime from parts where title like "%{}%" order by number'.format(
+                titleSearchStr)
+        else:
+            cmd = 'select id, number, title, description, status, createBy, createTime, releaseBy, releaseTime from parts order by number'
+        if limit > 0:
+            cmd = '{} limit {} offset {}'.format(cmd, limit, offset)
+        cursor.execute(cmd)
+        result = []
+        for row in cursor:
+            item = {
+                'id': row[0],
+                'number': row[1],
+                'title': row[2],
+                'description': row[3],
+                'status': row[4],
+                'createBy': row[5],
+                'createTime': row[6],
+                'releaseBy': row[7],
+                'releaseTime': row[8],
+            }
+            result.append(item)
+        if numberSearchStr != "" and titleSearchStr != "":
+            cmd = 'select count(*) from parts where number like "%{}%" and title like "%{}%" order by number'.format(
+                numberSearchStr, titleSearchStr)
+        elif numberSearchStr != "":
+            cmd = 'select count(*) from parts where number like "%{}%" order by number'.format(
+                numberSearchStr)
+        elif titleSearchStr != "":
+            cmd = 'select count(*) from parts where title like "%{}%" order by number'.format(
+                titleSearchStr)
+        else:
+            cmd = 'select count(*) from parts order by number'
+        cursor.execute(cmd)
+        row = cursor.fetchone()
+        if row == None:
+            count = 0
+        else:
+            count = row[0]
+    except Exception as e:
+        print(e)
+        return [], 0
+    finally:
+        if conn is not None:
+            conn.close()
+    return result, count

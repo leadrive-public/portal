@@ -1,14 +1,67 @@
 {% extends "dcc/base.html" %}
 {% block pageStylesAndScripts %}
+<style></style>
 <script>
     function pageLoad() {
         vm = new Vue({
+            el: "#vueapp",
+            delimiters: ["{[", "]}"],
             data: function () {
                 return {
-
+                    numberSearchStr: "",
+                    titleSearchStr: "",
+                    searchData: [],
+                    status: "initial",
+                    pages: [],
+                    currentPage: 0,
+                    limit: 0,
+                    offset: 0,
+                    pageSize: 50,
                 };
             },
-            el: "#vueapp",
+            methods: {
+                searchButtonHandler: function () {
+                    this.limit = 50;
+                    this.offset = 0;
+                    this.searchHandler();
+                },
+                searchHandler: function () {
+                    $.ajax({
+                        type: "POST",
+                        url: "/dcc/service",
+                        contentType: "application/json",
+                        data: JSON.stringify({
+                            function: "search",
+                            numberSearchStr: this.numberSearchStr,
+                            titleSearchStr: this.titleSearchStr,
+                            limit: this.limit,
+                            offset: this.offset,
+                        }),
+                        dataType: "json",
+                        async: true,
+                        context: this,
+                        beforeSend: this.search_beforeSendCallback,
+                        success: this.search_successCallback,
+                        error: this.search_errorCallback,
+                        complete: null,
+                    });
+                },
+                search_beforeSendCallback: function () {
+                    this.status = "searching";
+                },
+                search_successCallback: function (rsp) {
+                    if (!rsp.isSuccess) {
+                        this.status = "error";
+                        return;
+                    }
+                    this.status = "success";
+                    this.searchData = rsp.result;
+
+                },
+                search_errorCallback: function () {
+
+                },
+            }
         });
     }
 </script>
@@ -19,13 +72,89 @@
 
 {% block mainContent %}
 <div class="flex-fill p-3 d-flex flex-column overflow-hidden"
-    style="background-color: rgba(255,255,255,0.9)!important;">
+    style="background-color: rgba(255,255,255,0.8)!important;">
     <ol class="breadcrumb bg-transparent p-0 m-0">
         <li class="breadcrumb-item"><a href="/"><i class="home icon"></i></a></li>
         <li class="breadcrumb-item active"><a href="/dcc">DCC</a></li>
         <li class="breadcrumb-item active">Search</li>
     </ol>
     <hr class="my-2" />
-
+    <div class="alert bg-white shadow" id="search-parameter-panel">
+        <div>
+            <div class="form-group row">
+                <label for="numberInput" class="col-sm-2 col-form-label text-sm-right">Number</label>
+                <div class="col-sm-10">
+                    <input type="email" class="form-control" id="numberInput"
+                        placeholder="Type at least 4 letters of the part number..." v-model="numberSearchStr" />
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="titleInput" class="col-sm-2 col-form-label text-sm-right">Title</label>
+                <div class="col-sm-10">
+                    <input type="email" class="form-control" id="titleInput"
+                        placeholder="Type the key word in the part title..." v-model="titleSearchStr" />
+                </div>
+            </div>
+            <div class="form-group row mb-0">
+                <label class="col-sm-2 col-form-label text-sm-right"></label>
+                <div class="col-sm-10">
+                    <button class="btn btn-primary" @click="searchButtonHandler">Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="alert bg-white shadow" id="search-result-panel" v-if="status=='success'">
+        <table class="table table-hover table-sm">
+            <thead>
+                <tr>
+                    <th>Number</th>
+                    <th>Title</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <template v-for="item in searchData">
+                    <tr>
+                        <td>{[item.number]}</td>
+                        <td>{[item.title]}</td>
+                        <td>{[item.status]}</td>
+                        <td><a :href="'/dcc/parts/'+item.number" target="_blank"><i class="search icon"></i></a></td>
+                    </tr>
+                </template>
+                <template v-if="searchData.length==0">
+                    <tr>
+                        <td col-span="4">No data is found!</td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+        <nav aria-label="Page navigation example">
+            <ul class="pagination">
+                <li class="page-item">
+                    <a class="page-link" href="#" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                <li class="page-item"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item">
+                    <a class="page-link" href="#" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    <div class="alert alert-info shadow" v-if="status=='searching'">
+        <div class="spinner-border" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+        Searching...
+    </div>
+    <div class="alert alert-danger shadow" v-if="status=='error'">
+        ERROR!
+    </div>
 </div>
 {% endblock %}
