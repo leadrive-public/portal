@@ -176,19 +176,34 @@ def getLastDayOfWeek(date):
     return weekDate
 
 
+newWeekStartDate = -2  # SAT
+newWeekStartHour = 12  # 12:00
+
+
 def getEditableSpan():
-    today = datetime.utcnow().date()
-    result = {
-        0: (0, 6),
-        1: (-1, 5),
-        2: (-2, 4),
-        3: (-3, 3),
-        4: (-4, 2),
-        5: (2, 8),
-        6: (1, 7),
-    }
-    startDate = today+timedelta(days=result[today.weekday()][0])
-    endDate = today+timedelta(days=result[today.weekday()][1])
+    utcnow = datetime.utcnow()
+    # if newWeekStartDate == -2:
+    #     result = {
+    #         0: (0, 6),  # MON
+    #         1: (-1, 5),  # TUE
+    #         2: (-2, 4),  # WED
+    #         3: (-3, 3),  # THU
+    #         4: (-4, 2),  # FRI
+    #         5: (2, 8),  # SAT
+    #         6: (1, 7),  # SUN
+    #     }
+    switchDate = newWeekStartDate % 7
+    if utcnow.weekday() < switchDate:
+        days = -utcnow.weekday()+(newWeekStartDate//7+1)*(-7)
+    elif utcnow.weekday() == switchDate:
+        if utcnow.hour < newWeekStartHour:
+            days = -utcnow.weekday()+(newWeekStartDate//7+1)*(-7)
+        else:
+            days = -utcnow.weekday()+7+(newWeekStartDate//7+1)*(-7)
+    else:
+        days = -utcnow.weekday()+7+(newWeekStartDate//7+1)*(-7)
+    startDate = utcnow.date() + timedelta(days=days)
+    endDate = utcnow.date() + timedelta(days=days+6)
     return {'startDate': startDate, 'endDate': endDate}
 
 
