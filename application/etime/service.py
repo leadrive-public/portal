@@ -177,7 +177,7 @@ def getLastDayOfWeek(date):
 
 
 newWeekStartDate = -2  # SAT
-newWeekStartHour = 12  # 12:00
+newWeekStartHour = 4  # 12:00
 
 
 def getEditableSpan():
