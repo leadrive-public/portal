@@ -9,6 +9,7 @@ from . import etime
 from . import ioi
 from . import estaffing
 from . import dcc
+from . import task
 
 
 def create_app():
@@ -33,6 +34,7 @@ def create_app():
     app.register_blueprint(ioi.bp,  url_prefix='/ioi')
     app.register_blueprint(estaffing.bp,  url_prefix='/estaffing')
     app.register_blueprint(dcc.bp, url_prefix='/dcc')
+    app.register_blueprint(task.bp, url_prefix='/task')
 
     # /
     @app.route('/')

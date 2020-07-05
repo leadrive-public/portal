@@ -1,0 +1,197 @@
+{% extends "task/base.html" %}
+{% block mainContent %}
+<div class="flex-fill p-3 d-flex flex-column overflow-hidden sitemaster-maincontent">
+    <ol class="breadcrumb bg-transparent p-0 m-0">
+        <li class="breadcrumb-item"><a href="/"><i class="home icon"></i></a></li>
+        <li class="breadcrumb-item"><a href="/task">Task</a></li>
+        <li class="breadcrumb-item active">New</li>
+    </ol>
+    <hr class="my-2" />
+    <div class="alert bg-white shadow">
+        <p class="font-weight-bold">Apply a new task</p>
+        <hr>
+        <div>
+            <div class="form-group row">
+                <label for="titleInput" class="col-sm-2 col-form-label text-sm-right">Title</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="titleInput" v-model="title" />
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="titleInput" class="col-sm-2 col-form-label text-sm-right">Description</label>
+                <div class="col-sm-10">
+                    <textarea class="form-control" id="descriptionInput" rows="4" v-model="description"></textarea>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="titleInput" class="col-sm-2 col-form-label text-sm-right">Department</label>
+                <div class="col-sm-10">
+                    <select class="custom-select" v-model="department">
+                        <option v-for="department in departments" :value="department.name" v-html="department.title">
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="titleInput" class="col-sm-2 col-form-label text-sm-right">Type</label>
+                <div class="col-sm-10">
+                    <select class="custom-select" v-model="taskType">
+                        <option v-for="taskType in taskTypes" :value="taskType" v-html="taskType">
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="titleInput" class="col-sm-2 col-form-label text-sm-right">Priority</label>
+                <div class="col-sm-10">
+                    <select class="custom-select" id="categoryInput" v-model="priority">
+                        <option value="high">High</option>
+                        <option value="middle">Middle</option>
+                        <option value="low">Low</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="titleInput" class="col-sm-2 col-form-label text-sm-right">Owner</label>
+                <div class="col-sm-10">
+                    <select class="custom-select" id="ownerInput" v-model="owner">
+                        <option></option>
+                        <option value="57">陈思雪</option>
+                        <option value="76">龚正华</option>
+                        <option value="74">衡静</option>
+                        <option value="93">郝雯静</option>
+                        <option value="51">李明</option>
+                        <option value="96">刘小同</option>
+                        <option value="52">陆晓贤</option>
+                        <option value="58">吴萍</option>
+                        <option value="89">尹巧花</option>
+                        <option value="3">张嵩</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label text-sm-right"></label>
+                <div class="col-sm-10">
+                    <button class="btn btn-primary" @click="createTask">New</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block pageStylesAndScripts %}
+<script>
+    function pageLoad() {
+        vm = new Vue({
+            delimiters: ['{[', ']}'],
+            el: "#vueapp",
+            data: function () {
+                return {
+                    title: "",
+                    description: "",
+                    department: "",
+                    taskType: "",
+                    priority: "",
+                    owner: "",
+                    departments: [],
+                    taskTypes: []
+                };
+            },
+            methods: {
+                getAccessibleDepartments_beforeSend: function () {
+                    this.departments = [];
+                },
+                getAccessibleDepartments_successCallback: function (rsp) {
+                    //console.log("getAccessibleDepartments_successCallback");
+                    if (!rsp.isSuccess) { this.departments = []; return; }
+                    this.departments = rsp.departments;
+                },
+                getTaskTypes: function () {
+                    console.log("getTaskTypes");
+                    $.ajax({
+                        type: "POST",
+                        url: "/task/service",
+                        contentType: "application/json",
+                        data: JSON.stringify({
+                            function: "getTaskTypes",
+                            department: this.department
+                        }),
+                        dataType: "json",
+                        async: true,
+                        context: this,
+                        beforeSend: this.getTaskTypes_beforeSend,
+                        success: this.getTaskTypes_successCallback,
+                        error: null,
+                        complete: null,
+                    });
+                },
+                getTaskTypes_beforeSend: function () {
+                    this.taskTypes = [];
+                },
+                getTaskTypes_successCallback: function (rsp) {
+                    console.log("getTaskTypes_successCallback");
+                    if (!rsp.isSuccess) { this.taskTypes = []; return; }
+                    this.taskTypes = rsp.taskTypes;
+                },
+                createTask: function () {
+                    if (this.title == "") { alert("错误：任务名称为空！"); return; }
+                    if (this.description == "") { alert("错误：任务描述为空！"); return; }
+                    if (this.department == "") { alert("错误：项目/部门为空！"); return; }
+                    if (this.taskType == "") { alert("错误：任务类型为空！"); return; }
+                    if (this.priority == "") { alert("错误：优先级为空！"); return; }
+                    if (this.owner == "") { alert("错误：负责人为空！"); return; }
+                    $.ajax({
+                        type: "POST",
+                        url: "/task/service",
+                        contentType: "application/json",
+                        data: JSON.stringify({
+                            function: "createTask",
+                            title: this.title,
+                            description: this.description,
+                            department: this.department,
+                            taskType: this.taskType,
+                            priority: this.priority,
+                            owner: this.owner
+                        }),
+                        dataType: "json",
+                        async: true,
+                        context: this,
+                        beforeSend: null,
+                        success: this.createTask_successCallback,
+                        error: null,
+                        complete: null,
+                    });
+                },
+                createTask_successCallback: function (rsp) {
+                    console.log("createTask_successCallback");
+                    console.log(rsp);
+                    if (!rsp.isSuccess) { error("Fail to create the task."); }
+
+                }
+            },
+            watch: {
+                department: function (newValue, oldValue) {
+                    this.getTaskTypes();
+                }
+            },
+            mounted: function () {
+                $.ajax({
+                    type: "POST",
+                    url: "/task/service",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        function: "getAccessibleDepartments",
+                    }),
+                    dataType: "json",
+                    async: true,
+                    context: this,
+                    beforeSend: this.getAccessibleDepartments_beforeSend,
+                    success: this.getAccessibleDepartments_successCallback,
+                    error: null,
+                    complete: null,
+                });
+            }
+        });
+    }
+</script>
+{% endblock %}
