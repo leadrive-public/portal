@@ -81,6 +81,7 @@
 {% endblock %}
 {% block pageStylesAndScripts %}
 <script>
+    var userId = Number("{{user.id}}");
     function pageLoad() {
         vm = new Vue({
             delimiters: ['{[', ']}'],

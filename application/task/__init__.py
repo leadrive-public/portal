@@ -1,1 +1,1 @@
-from .blueprint import bp, service
+from .blueprint import bp

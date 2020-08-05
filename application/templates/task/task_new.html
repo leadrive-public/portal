@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<title>新建任务</title>
+	<link href="/zscss/bootstrap.css" rel="stylesheet">
+	<link href="/zscss/zs_style.css" rel="stylesheet">
+	<script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+	<script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+	<script>
+		var num = 0;
+
+
+		function update_type() {
+
+			var property = $("#pj_dpt").val();
+			$.post("/task/config/get",
+				{
+					property: property
+				},
+				function (data, status) {
+					//alert("数据: \n" + data + "\n状态: " + status);
+
+					var jsondata = JSON.parse(data);
+					//alert("完成数据解析");
+
+					$("#task_type").children().remove();
+					if (jsondata.status == 200) {
+						$.each(jsondata.result, function (i, item) {
+							$("#task_type").append('<option>' + item.setting + '</option>');
+						})
+					} else {
+
+					}
+				});
+		}
+
+
+		function create_task() {
+			task_name = $("#task_name").val();
+			if (task_name == "") {
+				alert("错误：任务名称为空！");
+				return;
+			}
+
+			sss = $("#description").val();
+			sss = sss.replace(/&/g, "&amp;");
+			sss = sss.replace(/>/g, "&gt;");
+			sss = sss.replace(/</g, "&lt;");
+			sss = sss.replace(/"/g, "&quot;");
+			sss = sss.replace(/©/g, "&copy;");
+			sss = sss.replace(/ /g, "&nbsp;");
+			sss = sss.replace(/\\/g, "\\\\");
+			description = sss.replace(/\n/g, "<br>");
+
+			//alert("描述：" + description);
+
+			if (description == "") {
+				alert("错误：任务描述为空！");
+				return;
+			}
+
+			pj_dpt = $("#pj_dpt").val();
+			if (pj_dpt == "") {
+				alert("错误：项目/部门为空！");
+				return;
+			}
+
+			task_type = $("#task_type").val();
+			if (task_type == "") {
+				alert("错误：任务类型为空！");
+				return;
+			}
+
+			priority = $("#priority").val();
+			if (priority == "") {
+				alert("错误：优先级为空！");
+				return;
+			}
+
+			owner = $("#owner").val();
+			if (owner == "") {
+				alert("错误：负责人为空！");
+				return;
+			}
+
+			//alert("开始调用post" );
+
+			$.post("/task/list/new",
+				{
+					task_name: task_name,
+					pj_dpt: pj_dpt,
+					task_type: task_type,
+					priority: priority,
+					owner: owner,
+					description: description
+				},
+				function (data, status) {
+					//alert("数据: \n" + data + "\n状态: " + status);
+
+					var jsondata = JSON.parse(data);
+
+					//alert("数据解析成功！");
+					var task_priority = "";
+					if (jsondata.status == 200) {
+						if (num == 0) {
+							$("#idtbody").children().remove();
+						}
+						$("#task_name").val('');
+						$("#description").val('');
+						$.each(jsondata.result, function (i, item) {
+							//alert( "料号："+item.part_number);
+							num++;
+							if (item.priority == "1-高") {
+								task_priority = '<span class="zs-label-red">1-高</span>';
+							} else if (item.priority == "2-中") {
+								task_priority = '<span class="zs-label-yellow">2-中</span>';
+							} else {
+								task_priority = '<span class="zs-label-blue">3-低</span>';
+							}
+							$("#idtbody").append('<tr><td>' + num + '</td><td><a href="/task/' + item.task_id + '">' + item.task_id + '</a></td><td>' + item.task_name + '</td><td>' + item.pj_dpt + '</td><td>' + item.task_type + '</td><td>' + task_priority + '</td><td>' + item.owner + '</td><td>' + item.task_status + '</td><td style="text-align:left">' + item.description + '</td><td>' + item.log_by + '</td><td>' + item.log_time + '</td><td>' + item.update_time + '</td></tr>');
+						})
+					}
+				});
+		}
+
+	</Script>
+
+	<style>
+		div {
+			border: 0px solid red;
+		}
+	</style>
+
+</head>
+
+<body style="padding-top: 70px; background-color: #f4f4f4">
+	<nav class="navbar navbar-fixed-top navbar-blue" role="navigation">
+		<div class="container-fluid">
+
+			<div class="navbar-header">
+				<img src="/icon/logo_white.png" alt="icon" class="nav_logo">
+				<div class="navbar-brand-ld">臻驱科技 -- 任务管理</div>
+			</div>
+
+			<!-- 靠右对齐 -->
+			<form class="navbar-form navbar-right" role="search">
+				<a href="/logout">
+					<button type="button" class="btn btn-default">
+						安全退出
+					</button>
+				</a>
+			</form>
+			<p class="navbar-text navbar-login navbar-right">欢迎，{{display_name}}</p>
+
+		</div>
+	</nav>
+
+
+	<div class="container-fluid">
+		<div class="row">
+			<!--左边菜单栏     -->
+			<div class="col-sm-2" id="menulist">
+				<ul id="main-nav" class="nav nav-pills nav-stacked" style="background-color: #fff">
+					<li><a href="/"><i class="glyphicon glyphicon-home"></i><span class="nav-word">首页</span></a></li>
+					<li class=""><a href="/task/search"><i class="glyphicon glyphicon-tasks"></i><span
+								class="nav-word">任务查询</span></a></li>
+					<li class="selected"><a href="/task/create"><i class="glyphicon glyphicon-wrench"></i><span
+								class="nav-word">新建任务</span></a></li>
+				</ul>
+			</div>
+
+			<!--右边菜单栏-->
+			<div class="col-sm-10" id="right">
+				<ol class="breadcrumb" style="background-color: #fff">
+					<li class="active">首页</li>
+					<li class="active">任务管理</li>
+					<li class="active">新建任务</li>
+				</ol>
+
+
+				<div class="panel panel-default">
+					<div class="panel-heading">新建任务：</div>
+					<div class="panel-body">
+
+						<form class="form-horizontal" role="form">
+							<div class="form-group">
+								<label for="part_type" class="col-sm-2 zs-field">任务名：</label>
+								<input type="text" class="zs-form-control" style="width: 400px" id="task_name"
+									placeholder="请输入任务名">
+							</div>
+
+
+							<div class="form-group">
+								<label for="part_type" class="col-sm-2 zs-field">任务描述：</label>
+
+								<textarea class="zs-form-control" style="width:800px; height: 80px" id="description"
+									rows="3"></textarea>
+							</div>
+
+							<div class="form-group">
+								<label for="part_type" class="col-sm-2 zs-field">项目/部门：</label>
+								<select class="form-control" style="width: 150px" onchange="update_type()" id="pj_dpt">
+									<option></option>
+
+								</select>
+							</div>
+
+							<div class="form-group">
+								<label for="part_type" class="col-sm-2 zs-field">任务类型：</label>
+								<select class="form-control" style="width: 150px" id="task_type">
+									<option></option>
+								</select>
+							</div>
+
+							<div class="form-group">
+								<label for="part_type" class="col-sm-2 zs-field">优先级：</label>
+								<select class="form-control" style="width: 150px" id="priority">
+									<option></option>
+									<option>1-高</option>
+									<option>2-中</option>
+									<option>3-低</option>
+								</select>
+							</div>
+
+							<div class="form-group">
+								<label for="part_type" class="col-sm-2 zs-field">负责人：</label>
+								<select class="form-control" style="width: 150px" id="owner">
+									<option></option>
+									<option>陈思雪</option>
+									<option>龚正华</option>
+									<option>衡静</option>
+									<option>郝雯静</option>
+									<option>李明</option>
+									<option>刘小同</option>
+									<option>陆晓贤</option>
+									<option>吴萍</option>
+									<option>尹巧花</option>
+									<option>张嵩</option>
+								</select>
+							</div>
+
+
+							<div class="form-group">
+								<label for="part_type" class="col-sm-2 input_item"></label>
+								<button type="button" class=" col-sm-10 btn btn-primary" style="width: 160px"
+									onclick="create_task()">新建任务</button>
+							</div>
+						</form>
+					</div>
+				</div>
+
+
+				<div class="panel panel-default">
+					<div id="search_result_title" class="panel-heading">任务清单：</div>
+					<div class="panel-body">
+						<div class="col-md-12">
+							<table class="table table-bordered table-striped" style="text-align:center; width:auto"
+								id="idtable">
+								<thead>
+									<tr>
+										<th style="width: 50px; text-align:center">序号</th>
+										<th style="width: 100px; text-align:center">任务号</th>
+										<th style="width: 240px; text-align:center">任务名</th>
+										<th style="width: 80px; text-align:center">项目/部门</th>
+										<th style="width: 80px; text-align:center">类型</th>
+										<th style="width: 80px; text-align:center">优先级</th>
+										<th style="width: 80px; text-align:center">负责人</th>
+										<th style="width: 80px; text-align:center">状态</th>
+										<th style="width: 300px; text-align:center">任务描述</th>
+										<th style="width: 80px; text-align:center">创建人</th>
+										<th style="width: 100px; text-align:center">创建日期</th>
+										<th style="width: 100px; text-align:center">更新日期</th>
+									</tr>
+								</thead>
+								<tbody id="idtbody">
+									<tr>
+										<td colspan="12" style="text-align:center">无新建的任务！</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+
+
+						<div id="json_return"></div>
+
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+	<!-- 底部页脚部分 -->
+	<div class="footer">
+		<p class="text-center">
+			2020 &copy; LEADRIVE.
+		</p>
+	</div>
+</body>
+<script>
+	/*
+		   * 对选中的标签激活active状态，对先前处于active状态但之后未被选中的标签取消active
+		   * （实现左侧菜单中的标签点击后变色的效果）
+		   */
+	$(document).ready(function () {
+		var property = 'pj_dpt'
+		$.post("/task/role/get",
+			{
+				property: property
+			},
+			function (data, status) {
+				//alert("数据: \n" + data + "\n状态: " + status);
+
+				var jsondata = JSON.parse(data);
+				//alert("完成数据解析");
+
+				if (jsondata.status == 200) {
+					$.each(jsondata.result, function (i, item) {
+						$("#pj_dpt").append('<option>' + item.setting + '</option>');
+					})
+				} else {
+
+				}
+			});
+
+	});
+
+
+	function loadPage(url) {
+		$.get(url, function (data, status) {
+			$("#right").html(data);
+		});
+	}
+</script>
+
+</html>

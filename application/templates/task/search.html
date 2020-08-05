@@ -8,6 +8,22 @@
         <li class="breadcrumb-item active">Search</li>
     </ol>
     <hr class="my-2" />
-    <sitemaster-link-group :linkitems="linkitems"></sitemaster-link-group>
+    <datalist-new title="Apply a New Task"></datalist-new>
 </div>
+{% endblock %}
+{% block pageStylesAndScripts %}
+<script src="/task/datalist-new.js"></script>
+<script>
+    function pageLoad() {
+        vm = new Vue({
+            delimiters: ['{[', ']}'],
+            el: "#vueapp",
+            data: function () {
+                return {
+
+                };
+            }
+        });
+    }
+</script>
 {% endblock %}

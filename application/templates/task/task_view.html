@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<title>任务更新</title>
+	<link href="/zscss/bootstrap.css" rel="stylesheet">
+	<link href="/zscss/zs_style.css" rel="stylesheet">
+	<script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+	<script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+	<script>
+		var num = 0;
+
+
+		function show_modify_task() {
+
+			//alert("Function : Add_new_address" );
+			$("#modal_pj_dpt").children().remove();
+			$("#modal_task_type").children().remove();
+			$("#modal_description").val($("#description").text());
+			$("#modal_priority").val($("#priority").text());
+			$("#modal_owner").val($("#owner").text());
+			var property = 'pj_dpt'
+			$.post("/task/role/get",
+				{
+					property: property
+				},
+				function (data, status) {
+					//alert("数据: \n" + data + "\n状态: " + status);
+
+					var jsondata = JSON.parse(data);
+					//alert("完成数据解析");
+
+
+					if (jsondata.status == 200) {
+						$.each(jsondata.result, function (i, item) {
+							$("#modal_pj_dpt").append('<option>' + item.setting + '</option>');
+						})
+					} else {
+
+					}
+				});
+			$("#modal_pj_dpt").val($("#pj_dpt").text());
+
+			$("#modal_task_type").append('<option>' + $("#task_type").text() + '</option>');
+
+			property = $("#pj_dpt").text();
+			$.post("/task/config/get",
+				{
+					property: property
+				},
+				function (data, status) {
+					//alert("数据: \n" + data + "\n状态: " + status);
+
+					var jsondata = JSON.parse(data);
+					//alert("完成数据解析");
+
+					if (jsondata.status == 200) {
+						$.each(jsondata.result, function (i, item) {
+							$("#modal_task_type").append('<option>' + item.setting + '</option>');
+						})
+					} else {
+
+					}
+				});
+
+			$("#myModal").modal("show");
+		}
+
+		function update_type() {
+			var property = $("#modal_pj_dpt").val();
+			$.post("/task/config/get",
+				{
+					property: property
+				},
+				function (data, status) {
+					//alert("数据: \n" + data + "\n状态: " + status);
+
+					var jsondata = JSON.parse(data);
+					//alert("完成数据解析");
+
+					$("#modal_task_type").children().remove();
+					if (jsondata.status == 200) {
+						$.each(jsondata.result, function (i, item) {
+							$("#modal_task_type").append('<option>' + item.setting + '</option>');
+						})
+					} else {
+
+					}
+				});
+		}
+
+		function change_task() {
+			sss = $("#modal_description").val();
+			sss = sss.replace(/&/g, "&amp;");
+			sss = sss.replace(/>/g, "&gt;");
+			sss = sss.replace(/</g, "&lt;");
+			sss = sss.replace(/"/g, "&quot;");
+			sss = sss.replace(/©/g, "&copy;");
+			sss = sss.replace(/\\/g, "\\\\");
+			sss = sss.replace(/ /g, "&nbsp;");
+			description = sss.replace(/\n/g, "<br>");
+
+			//alert (description);
+
+			if (description == "") {
+				alert("错误：任务描述为空！");
+				return;
+			}
+
+			pj_dpt = $("#modal_pj_dpt").val();
+			if (pj_dpt == "") {
+				alert("错误：项目/部门为空！");
+				return;
+			}
+
+			task_type = $("#modal_task_type").val();
+			if (task_type == "") {
+				alert("错误：任务类型为空！");
+				return;
+			}
+
+			priority = $("#modal_priority").val();
+			if (priority == "") {
+				alert("错误：优先级为空！");
+				return;
+			}
+
+			owner = $("#modal_owner").val();
+			if (owner == "") {
+				alert("错误：负责人为空！");
+				return;
+			}
+
+			task_id = $("#task_id").text();
+
+			//alert ("开始Post");
+			$.post("/task/info/update",
+				{
+					task_id: task_id,
+					description: description,
+					pj_dpt: pj_dpt,
+					task_type: task_type,
+					priority: priority,
+					owner: owner
+				},
+				function (data, status) {
+					//alert("数据: \n" + data + "\n状态: " + status);
+
+					$("#myModal").modal("hide");
+
+					var jsondata = JSON.parse(data);
+
+					//alert("解析成功！" );
+					if (jsondata.status == 200) {
+						alert("更新成功！");
+						$("#description").text(description);
+						$("#task_type").text(task_type);
+						$("#pj_dpt").text(pj_dpt);
+						$("#owner").text(owner);
+						$("#priority").text(priority);
+					} else if (jsondata.status == 410) {
+						alert("数据未更新：" + jsondata.msg);
+					} else {
+						alert("错误!!!: " + jsondata.msg);
+					}
+				});
+		}
+
+
+		function status_change(thisobj) {
+			task_id = $("#task_id").text();
+
+			new_status = $(thisobj).text();
+			//alert("状态变更！" + new_status);	
+
+			$.post("/task/status/change",
+				{
+					task_id: task_id,
+					task_status: new_status
+				},
+				function (data, status) {
+					//alert("数据: \n" + data + "\n状态: " + status);
+
+					var jsondata = JSON.parse(data);
+					//alert("解析成功！" );
+
+					if (jsondata.status == 200) {
+						//alert("更新成功！" );
+
+						new_status = jsondata.result.task_status;
+						$("#task_status").text(new_status);
+
+						if (new_status == "2-进行中") {
+							$("#task_status").attr("class", "zs-label-red");
+							$("#btn_open").hide();
+							$("#btn_review").show();
+							$("#btn_pause").show();
+							$("#btn_stop").hide();
+							$("#btn_done").hide();
+
+						} else if (new_status == "3-待评审") {
+							$("#task_status").attr("class", "zs-label-blue");
+							$("#btn_open").show();
+							$("#btn_review").hide();
+							$("#btn_pause").hide();
+							$("#btn_stop").hide();
+							$("#btn_done").show();
+						} else if (new_status == "4-暂停") {
+							$("#task_status").attr("class", "zs-label-yellow");
+							$("#btn_open").show();
+							$("#btn_review").hide();
+							$("#btn_pause").hide();
+							$("#btn_stop").show();
+							$("#btn_done").hide();
+						} else if (new_status == "5-终止") {
+							$("#task_status").attr("class", "zs-label-grey");
+							$("#btn_open").show();
+							$("#btn_review").hide();
+							$("#btn_pause").hide();
+							$("#btn_stop").hide();
+							$("#btn_done").hide();
+
+						} else if (new_status == "6-完成") {
+							$("#task_status").attr("class", "zs-label-green");
+							$("#btn_open").show();
+							$("#btn_review").hide();
+							$("#btn_pause").hide();
+							$("#btn_stop").hide();
+							$("#btn_done").hide();
+						}
+					} else if (jsondata.status == 410) {
+						alert("数据未更新：" + jsondata.msg);
+					} else {
+						alert("错误!!!: " + jsondata.msg);
+					}
+				});
+		}
+
+		function submit_update() {
+			task_id = $("#task_id").text();
+			task_status = $("#task_status").text();
+			sss = $("#task_time").val()
+
+			if (isvalidhour(sss) == true) {
+				task_time = Number(sss);
+			} else {
+				alert("错误：输入的时间不符合要求！");
+				return;
+			}
+
+			sss = $("#input_content").val()
+			sss = sss.replace(/&/g, "&amp;");
+			sss = sss.replace(/>/g, "&gt;");
+			sss = sss.replace(/</g, "&lt;");
+			sss = sss.replace(/"/g, "&quot;");
+			sss = sss.replace(/©/g, "&copy;");
+			sss = sss.replace(/ /g, "&nbsp;");
+			sss = sss.replace(/\\/g, "\\\\");
+			input_content = sss.replace(/\n/g, "<br>");
+
+			if (input_content == "") {
+				alert("错误：输入的更新内容为空！");
+				return;
+			}
+
+			//alert ("开始Post");
+
+			$.post("/task/content/update",
+				{
+					task_id: task_id,
+					task_time: task_time,
+					input_content: input_content
+				},
+				function (data, status) {
+					//alert("数据: \n" + data + "\n状态: " + status);
+
+					var jsondata = JSON.parse(data);
+					//alert("解析成功！");
+					$("#input_content").val('');
+					$("#task_time").val('');
+					if (jsondata.status == 200) {
+						item = jsondata.result;
+						$("#contents").append('<div class="col-md-12 zs-chat-panel"><div class="zs-chat-title"> <div class="zs-chat-title1"> #' + item.task_seq + '</div><div class="zs-chat-title2">' + item.name + '</div><div class="zs-chat-title3"> ' + item.update_time + '</div><div style="margin-top:6px;width:100px;float:left">' + item.task_time + ' 小时 </div><div style="margin-top:6px;width:100px;float:left">' + task_status + '</div></div><div class="zs-chat-content">' + item.content + '</div><div class="zs-chat-attachment"><div class="zs-chat-attachment1">附件：</div><div class="zs-chat-attachment2"></div></div></div>');
+					}
+					else {
+						alert("错误!!!: " + jsondata.msg);
+					}
+				});
+		}
+
+		function isvalidhour(str) {
+			// var reg=/^[0-9]{1}$/;   
+			var reg = /^[0-9]+(.[0-9]{0,1})?$/;/*定义验证表达式*/
+			return reg.test(str);     /*进行验证*/
+		}
+
+	</Script>
+
+	<style>
+		div {
+			border: 0px solid red;
+		}
+
+		.status_box {
+			width: 200px;
+			height: 20px;
+			background-color: #ffb53e;
+			margin-left: 20px;
+			padding: 6px;
+			border-radius: 8px
+		}
+	</style>
+
+</head>
+
+<body style="padding-top: 70px; background-color: #f4f4f4">
+	<nav class="navbar navbar-fixed-top navbar-blue" role="navigation">
+		<div class="container-fluid">
+
+			<div class="navbar-header">
+				<img src="/icon/logo_white.png" alt="icon" class="nav_logo">
+				<div class="navbar-brand-ld">臻驱科技 -- 任务管理</div>
+			</div>
+
+			<!-- 靠右对齐 -->
+			<form class="navbar-form navbar-right" role="search">
+				<a href="/logout">
+					<button type="button" class="btn btn-default">
+						安全退出
+					</button>
+				</a>
+			</form>
+			<p class="navbar-text navbar-login navbar-right">欢迎，{{display_name}}</p>
+
+		</div>
+	</nav>
+
+
+	<div class="container-fluid">
+		<div class="row">
+			<!--左边菜单栏     -->
+			<div class="col-sm-2" id="menulist">
+				<ul id="main-nav" class="nav nav-pills nav-stacked" style="background-color: #fff">
+					<li><a href="/"><i class="glyphicon glyphicon-home"></i><span class="nav-word">首页</span></a></li>
+					<li class=""><a href="/task/search"><i class="glyphicon glyphicon-tasks"></i><span
+								class="nav-word">任务查询</span></a></li>
+					<li class="selected"><a href=""><i class="glyphicon glyphicon-wrench"></i><span
+								class="nav-word">任务更新</span></a></li>
+					<li class=""><a href="/task/create"><i class="glyphicon glyphicon-wrench"></i><span
+								class="nav-word">新建任务</span></a></li>
+				</ul>
+			</div>
+
+			<!--右边菜单栏-->
+			<div class="col-sm-10" id="right">
+				<ol class="breadcrumb" style="background-color: #fff">
+					<li class="active">首页</li>
+					<li class="active">任务管理</li>
+					<li class="active">任务更新</li>
+				</ol>
+
+
+				<div class="panel panel-default">
+					<div class="panel-heading">任务：<span id="task_id">{{task_id}}</span>
+						<span class="zs-label-red" style="margin-left:20px" id="task_status">不存在</span>
+						<button type="button" class=" btn btn-danger"
+							style="width: 120px;margin-left:30px; float:right; display:none" id="btn_open"
+							onclick="status_change(this)">2-进行中</button>
+						<button type="button" class=" btn btn-primary"
+							style="width: 120px;margin-left:30px; float:right; display:none " id="btn_review"
+							onclick="status_change(this)">3-待评审</button>
+						<button type="button" class=" btn btn-warning"
+							style="width: 120px;margin-left:30px; float:right; display:none" id="btn_pause"
+							onclick="status_change(this)">4-暂停</button>
+						<button type="button" class=" btn btn-grey"
+							style="width: 120px;margin-left:30px; float:right; display:none" id="btn_stop"
+							onclick="status_change(this)">5-终止</button>
+						<button type="button" class=" btn btn-success"
+							style="width: 120px;margin-left:30px; float:right; display:none" id="btn_done"
+							onclick="status_change(this)">6-完成</button>
+						<button type="button" class=" btn btn-danger"
+							style="width: 120px;margin-left:30px; float:right; display:none" id="btn_reopen"
+							onclick="status_change(this)">重新开始</button>
+					</div>
+					<div class="panel-body">
+
+						<form class="form-horizontal" role="form">
+
+							<div class="form-group">
+								<label for="part_type" class="col-sm-2 zs-field">任务名称：</label>
+								<label for="part_type" class="col-sm-8 zs-content" id="task_name">Task Name</label>
+							</div>
+
+
+							<div class="form-group">
+								<label for="part_type" class="col-sm-2 zs-field">任务描述：</label>
+								<label for="part_type" class="col-sm-8 zs-content" id="description">Task
+									Description</label>
+							</div>
+
+							<div class="form-group">
+								<label for="part_type" class="col-sm-2 zs-field">项目/部门：</label>
+								<label for="part_type" class="col-sm-2 zs-content" id="pj_dpt">Department</label>
+								<label for="part_type" class="col-sm-2 zs-field">类型：</label>
+								<label for="part_type" class="col-sm-2 zs-content" id="task_type">Type</label>
+							</div>
+
+							<div class="form-group">
+								<label for="part_type" class="col-sm-2 zs-field">优先级：</label>
+								<label for="part_type" class="col-sm-2 zs-content" id="priority">1-高</label>
+								<label for="part_type" class="col-sm-2 zs-field">负责人：</label>
+								<label for="part_type" class="col-sm-2 zs-content" id="owner">Owner</label>
+							</div>
+
+							<div class="form-group">
+								<label for="part_type" class="col-sm-2 zs-field">创建人：</label>
+								<label for="part_type" class="col-sm-2 zs-content" id="log_by">Creator</label>
+								<label for="part_type" class="col-sm-2 zs-field">创建日期：</label>
+								<label for="part_type" class="col-sm-2 zs-content" id="log_time">Create Date</label>
+							</div>
+
+							<div class="form-group">
+								<label for="part_type" class="col-sm-2 input_item"></label>
+								<button type="button" class=" btn btn-primary" style="width: 120px"
+									onclick="show_modify_task()">属性变更</button>
+							</div>
+						</form>
+					</div>
+				</div>
+
+
+				<div class="panel panel-default">
+					<div id="search_result_title" class="panel-heading">任务历史：</div>
+					<div class="panel-body" id="contents">
+						<!--<div class="col-md-12 zs-chat-panel">
+							<div class="zs-chat-title"> <div class="zs-chat-title1"> #1 </div> <div class="zs-chat-title2"> 朱骏 </div> <div class="zs-chat-title3">2020/4/20 16:38:34</div><div style="margin-top:6px;width:100px;float:left">1.5h</div></div>
+							<div style="border-top:1px dashed #888;height: 1px;overflow:hidden"></div>
+							<div style="padding-top:10px">
+								为了更好的追踪任务，以及方便记录以及相互沟通，需要上线一个任务追踪系统。供员工记录基于任务的工作。
+							</div>
+							<div style="margin-top:30px; border-top:1px dashed #888;height:1px;overflow:hidden"></div>
+							
+							<div class="zs-chat-attachment">
+								<div class="zs-chat-attachment1">附件：</div>
+								<div class="zs-chat-attachment2">
+
+								</div>
+                                
+							</div>
+						</div>
+
+						<div class="col-md-12 zs-chat-panel">
+							<div class="zs-chat-title"> <div class="zs-chat-title1"> #2 </div> <div class="zs-chat-title2"> 陈思雪 </div> <div class="zs-chat-title3">2020/4/20 16:38:34</div><div style="margin-top:6px;width:100px;float:left">4h</div></div>
+							<div class="zs-chat-content">
+								系统界面已经由张嵩编写完成，下周与相关人员评审一下是否满足需求以及还有什么地方更方便使用。评审完成后，开始编写后端代码。<br>
+								争取在6月底上线。
+							</div>
+							
+							<div class="zs-chat-attachment">
+								<div class="zs-chat-attachment1">附件：</div>
+								<div class="zs-chat-attachment2">
+									<p><a href='pn/EGA-00001'>EV0001-DD0001-01.txt</a></p>
+									<p><a href='pn/EGA-00001'>EV0001-DD0002-01.txt</a></p>
+								</div>
+                                
+							</div>
+						</div>
+						<div class="col-md-12 zs-chat-panel">
+							<div class="zs-chat-title"> <div class="zs-chat-title1"> #3 </div> <div class="zs-chat-title2"> 陈思雪 </div> <div class="zs-chat-title3">2020/4/20 16:38:34</div><div style="margin-top:6px;width:100px;float:left">4h</div><div style="margin-top:6px;width:100px;float:left">2-进行中</div></div>
+							<div class="zs-chat-content">
+								系统界面已经评审完成后，目前开始编写后端代码。预计6月20日测试完后可以上线开始测试。<br>
+								依旧争取在6月底上线。
+							</div>
+							
+							<div class="zs-chat-attachment">
+								<div class="zs-chat-attachment1"><button type="button" class=" col-sm-10 btn btn-primary" style="width: 80px" onclick="search_part()">上传附件</button></div>
+								<div class="zs-chat-attachment2">
+
+								</div>
+                                
+							</div>
+						</div> -->
+
+
+					</div>
+				</div>
+
+				<div class="panel panel-default">
+					<div id="search_result_title" class="panel-heading">任务更新：</div>
+					<div class="panel-body">
+
+						<form class="" role="form">
+
+							<div class="form-group">
+								<label for="part_type" class="zs-field">消耗时间：</label>
+								<input type="text" class="zs-form-control" style="width: 120px" id="task_time"
+									placeholder="">
+								<label for="part_type" class="zs-field">小时</label>
+							</div>
+
+							<div class="form-group">
+								<label class="zs-field">任务更新：</label>
+								<textarea class="form-control" rows="5" id="input_content"></textarea>
+							</div>
+
+							<div class="form-group">
+								<button type="button" class=" col-sm-10 btn btn-primary" style="width: 120px"
+									onclick="submit_update()">提交更新</button>
+							</div>
+
+						</form>
+					</div>
+				</div>
+
+
+				<div class="panel panel-default">
+					<div id="search_result_title" class="panel-heading">历史变更：</div>
+					<div class="panel-body">
+						<div class="col-md-12">
+							<table class="table table-bordered table-striped" style="text-align:center; width:auto"
+								id="idtable">
+								<thead>
+									<tr>
+										<th style="width: 60px; text-align:center">序号</th>
+										<th style="width: 100px; text-align:center">任务号</th>
+										<th style="width: 120px; text-align:center">属性</th>
+										<th style="width: 200px; text-align:center">旧属性</th>
+										<th style="width: 200px; text-align:center">新属性</th>
+										<th style="width: 80px; text-align:center">更新人</th>
+										<th style="width: 160px; text-align:center">更新日期</th>
+									</tr>
+								</thead>
+								<tbody id="log">
+
+									<!--	<tr>
+										<td>1</td>
+										<td>TK200000</td>
+										<td>任务状态</td>
+										<td>DA0004-人事部</td>
+										<td>新属性</td>
+										<td>测试人</td>
+										<td>2020-02-25 18:23:43</td>
+									</tr>
+								-->
+
+								</tbody>
+							</table>
+						</div>
+
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+	<!-- 底部页脚部分 -->
+	<div class="footer">
+		<p class="text-center">
+			2020 &copy; LEADRIVE.
+		</p>
+	</div>
+
+
+
+	<!-- 模态框（Modal） -->
+	<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog" style="width:720px">
+			<div class="modal-content" style="">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<div class="modal-title zs-title" id="address_modal_title">编辑任务</div>
+				</div>
+
+				<div class="modal-body" style="">
+
+					<div class="row form-group">
+						<label for="part_type" class="col-sm-2 zs-field">任务描述：</label>
+						<textarea class="zs-form-control" style="width:560px; height: 80px" id="modal_description"
+							rows="3"></textarea>
+					</div>
+
+					<div class="row form-group">
+						<label for="part_type" class="col-sm-2 zs-field">项目/部门：</label>
+						<select class="form-control" style="width: 150px" onchange="update_type()" id="modal_pj_dpt">
+
+
+						</select>
+					</div>
+
+					<div class="row form-group">
+						<label for="part_type" class="col-sm-2 zs-field">任务类型：</label>
+						<select class="form-control" style="width: 150px" id="modal_task_type">
+
+						</select>
+					</div>
+
+					<div class="row form-group">
+						<label for="part_type" class="col-sm-2 zs-field">优先级：</label>
+						<select class="form-control" style="width: 150px" id="modal_priority">
+							<option>1-高</option>
+							<option>2-中</option>
+							<option>3-低</option>
+						</select>
+					</div>
+
+					<div class="row form-group">
+						<label for="part_type" class="col-sm-2 zs-field">负责人：</label>
+						<select class="form-control" style="width: 150px" id="modal_owner">
+							<option>陈思雪</option>
+							<option>龚正华</option>
+							<option>衡静</option>
+							<option>郝雯静</option>
+							<option>李明</option>
+							<option>刘小同</option>
+							<option>陆晓贤</option>
+							<option>吴萍</option>
+							<option>尹巧花</option>
+							<option>张嵩</option>
+						</select>
+					</div>
+
+				</div>
+
+
+
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" style="width:100px" data-dismiss="modal">取消</button>
+					<button type="button" class="btn btn-primary" style="width:100px"
+						onclick="change_task()">确认</button>
+				</div>
+			</div><!-- /.modal-content -->
+		</div><!-- /.modal -->
+	</div>
+
+
+
+
+
+</body>
+<script>
+	/*
+		   * 对选中的标签激活active状态，对先前处于active状态但之后未被选中的标签取消active
+		   * （实现左侧菜单中的标签点击后变色的效果）
+		   */
+	$(document).ready(function () {
+		//alert("Onload!");
+
+		var SL_status = '';
+
+		task_id = $("#task_id").text();
+		$.post("/task/info/get",
+			{
+				action: "get",
+				task_id: task_id
+			},
+			function (data, status) {
+				//alert("数据: \n" + data + "\n状态: " + status);
+
+				var jsondata = JSON.parse(data);
+
+				//alert("解析任务信息成功！" );
+				if (jsondata.status == 200) {
+
+					item = jsondata.result;
+					$("#task_name").text(item.task_name);
+					$("#task_status").text(item.task_status);
+					$("#description").text(item.description);
+					$("#task_type").text(item.task_type);
+					$("#pj_dpt").text(item.pj_dpt);
+					$("#owner").text(item.owner);
+					$("#priority").text(item.priority);
+					$("#log_by").text(item.log_by);
+					$("#log_time").text(item.log_time);
+
+					if (item.task_status == "1-新建") {
+						$("#task_status").attr("class", "zs-label-red");
+						$("#btn_open").show();
+						$("#btn_review").hide();
+						$("#btn_pause").hide();
+						$("#btn_stop").hide();
+						$("#btn_done").hide();
+					} else if (item.task_status == "2-进行中") {
+						$("#task_status").attr("class", "zs-label-red");
+						$("#btn_open").hide();
+						$("#btn_review").show();
+						$("#btn_pause").show();
+						$("#btn_stop").hide();
+						$("#btn_done").hide();
+					} else if (item.task_status == "3-待评审") {
+						$("#task_status").attr("class", "zs-label-blue");
+						$("#btn_open").show();
+						$("#btn_review").hide();
+						$("#btn_pause").hide();
+						$("#btn_stop").hide();
+						$("#btn_done").show();
+					} else if (item.task_status == "4-暂停") {
+						$("#task_status").attr("class", "zs-label-yellow");
+						$("#btn_open").show();
+						$("#btn_review").hide();
+						$("#btn_pause").hide();
+						$("#btn_stop").show();
+						$("#btn_done").hide();
+					} else if (item.task_status == "5-终止") {
+						$("#task_status").attr("class", "zs-label-grey");
+						$("#btn_open").show();
+						$("#btn_review").hide();
+						$("#btn_pause").hide();
+						$("#btn_stop").hide();
+						$("#btn_done").hide();
+					} else if (item.task_status == "6-完成") {
+						$("#task_status").attr("class", "zs-label-green");
+						$("#btn_open").show();
+						$("#btn_review").hide();
+						$("#btn_pause").hide();
+						$("#btn_stop").hide();
+						$("#btn_done").hide();
+					}
+
+					//alert("content");
+
+					$("#contents").children().remove();
+					if (item.content_valid == 'True') {
+						$.each(item.content, function (i, item) {
+							$("#contents").append('<div class="col-md-12 zs-chat-panel"><div class="zs-chat-title"> <div class="zs-chat-title1"> #' + item.task_seq + '</div><div class="zs-chat-title2">' + item.update_name + '</div><div class="zs-chat-title3"> ' + item.update_time + '</div><div style="margin-top:6px;width:100px;float:left">' + item.time_consume + ' 小时 </div><div style="margin-top:6px;width:100px;float:left">' + item.task_status + '</div></div><div class="zs-chat-content">' + item.content + '</div><div class="zs-chat-attachment"><div class="zs-chat-attachment1">附件：</div><div class="zs-chat-attachment2"></div></div></div>');
+						});
+					}
+
+					num = 0;
+					$("#log").children().remove();
+					if (item.log_valid == 'True') {
+						$.each(item.log, function (i, item) {
+							num++;
+							$("#log").append('<tr><td>' + num + '</td><td>' + item.task_id + '</td><td>' + item.property + '</td><td>' + item.old_p + '</td><td>' + item.new_p + '</td><td>' + item.name + '</td><td>' + item.change_time + '</td></tr>');
+						})
+					} else {
+						$("#log").append('<tr><td colspan="7" style="text-align:center">无数据</td></tr>');
+					}
+
+
+				}
+				else {
+					alert("错误!!!: " + jsondata.msg);
+				}
+			});
+
+
+	});
+
+
+	function loadPage(url) {
+		$.get(url, function (data, status) {
+			$("#right").html(data);
+		});
+	}
+</script>
+
+</html>

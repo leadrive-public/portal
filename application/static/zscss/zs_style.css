@@ -1,0 +1,296 @@
+.panel-blue { background: #30a5ff; color: #fff; }
+.panel-teal { background: #1ebfae; color: #fff; }
+.panel-orange { background: #ffb53e; color: #fff; }
+.panel-red { background: #f9243f; color: #fff; }
+
+.navbar-blue {
+	background-color: #2196F3;
+	color:#FFFFFF;
+}
+
+
+.navbar-brand-ld {
+	color: #FFFFFF;
+	font-size: 25px;
+	font-weight:bold;
+	font-family: "Microsoft YaHei";
+	padding-left: 10px;
+	margin-top: 7px;
+	float:left;
+}
+
+.nav_logo {
+	width: 30px;
+	height: 30px;
+	margin: 10px 0px 0px 20px;
+	float:left;
+}
+
+.navbar-login {
+	color:#FFFFFF;
+	font-size: 15px;
+	font-family: "Microsoft YaHei";	
+}
+
+
+.nav-pills > li.selected > a,
+.nav-pills > li.selected > a:hover,
+.nav-pills > li.selected > a:focus {
+  	color: #fff;
+  	background-color: #2196F3;
+}
+
+.nav-pills > li > ul > li.selected > a,
+.nav-pills > li > ul > li.selected > a:hover,
+.nav-pills > li > ul > li.selected > a:focus {
+	border-radius: 4px;
+  	color: #fff;
+  	background-color: #2196F3;
+}
+
+.nav-word {
+	padding-left: 15px;
+}
+
+.nav-second {
+	padding-left: 20px;
+}
+
+
+.index-block{
+  padding-top: 24px;
+  padding-bottom: 24px;
+  border-bottom: 2px dashed;
+  border-color: #888;
+}
+
+.function_box {
+	width: 150px;
+	height: 150px;
+	background-color: #2196F3;
+	cursor:pointer;
+	margin-top: 24px;
+	margin-bottom: 24px;
+	margin-left: 65px;
+	float:left;
+}
+
+
+.function_box > a {
+	text-decoration: none; 
+}
+
+.function_box > a:hover {
+	text-decoration: none; 
+}
+
+.function_box_word {
+	color:#FFFFFF;
+	font-size: 25px;
+	font-family: "Microsoft YaHei";	
+	text-align: center;
+}
+
+.function_box_icon {
+	width: 60px;
+	height: 60px;
+	margin: 20px 45px 10px 45px ;
+}
+
+/*title of some input form */ 
+.zs-title {
+	font-size: 20px;
+	font-weight: bold;
+	font-family: "Microsoft YaHei";	
+}
+
+/*input form field setting */ 
+.zs-field {
+	font-size: 16px;
+	font-weight: bold;
+	font-family: "Microsoft YaHei";	
+	text-align: right;
+	margin-top: 6px;
+}
+
+/*display content */ 
+.zs-content {
+	font-size: 16px;
+	font-weight: normal;
+	font-family: "Microsoft YaHei";	
+	text-align: left;
+	margin-top: 6px;
+}
+
+.display_content {
+	font-size: 20px;
+	font-weight:bold;
+	font-family: "Microsoft YaHei";	
+	text-align: left;
+}
+
+.tb_center {
+	text-align:center;
+}
+
+.top-gap{
+	margin-top: 15px;
+}
+
+.zs-input-error{
+	border-color: #FF0000;
+	border-width: 3px;
+}
+
+.zs-form-control {
+  height: 34px;
+  padding: 6px 12px;
+  font-size: 14px;
+  line-height: 1.42857143;
+  color: #555555;
+  background-color: #fff;
+  background-image: none;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  -webkit-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+  -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+  -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+  transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+  transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+  transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+}
+
+.zs-chat-panel{
+  margin-bottom: 10px;
+  background-color: #eee;
+  border: 1px solid;
+  border-color: #ddd;
+  border-radius: 4px;
+}
+
+
+.zs-chat-title{
+  height: 36px;
+  background-color: #eee;
+  border-bottom: 1px dashed;
+  border-color: #888;
+}
+
+.zs-chat-title1{
+	font-size: 16px;
+	font-weight: bold;
+	font-family: "Microsoft YaHei";	
+	text-align: left;
+	width: 60px;
+	margin-top: 6px;
+	float: left;
+}
+
+.zs-chat-title2{
+	font-size: 16px;
+	font-weight: bold;
+	font-family: "Microsoft YaHei";	
+	text-align: left;
+	width: 80px;
+	margin-top: 6px;
+	float:left;
+}
+
+.zs-chat-title3{
+	font-size: 12px;
+	font-family: "Microsoft YaHei";	
+	text-align: left;
+	width: 220px;
+	margin-top: 8px;
+	float:left;
+}
+
+.zs-chat-content{
+  padding-top: 12px;
+  padding-bottom: 24px;
+  border-bottom: 1px dashed;
+  border-color: #888;
+}
+.zs-chat-attachment{
+	height: 50px;
+}
+
+.zs-chat-attachment1{
+  padding-top: 6px;
+  font-weight: bold;
+  width: 100px;
+  text-align: left;
+  float:left;
+}
+
+.zs-chat-attachment2{
+  padding-top: 6px;
+  width: 300px;
+  text-align: left;
+  float:left;
+}
+
+.zs-label-red{
+  background-color:#f9243f;
+  color: #fff;
+  border-radius:5px;
+  padding:8px
+}
+
+.zs-label-yellow{
+  background-color:#f39c12;
+  color: #fff;
+  border-radius:5px;
+  padding:8px
+}
+
+.zs-label-green{
+  background-color:#00a65a;
+  color: #fff;
+  border-radius:5px;
+  padding:8px
+}
+
+
+.zs-label-blue{
+  background-color:#30a5ff;
+  color: #fff;
+  border-radius:5px;
+  padding:8px
+}
+
+.zs-label-grey{
+  background-color:#888;
+  color: #fff;
+  border-radius:5px;
+  padding:8px
+}
+
+.zs-label-blank{
+  background-color:#fff;
+  border-color: #000;
+  color: #000;
+  border-radius:5px;
+  padding:8px
+}
+
+
+
+.btn-grey {
+  color: #fff;
+  background-color: #888;
+  border-color: #777;
+}
+.btn-grey:focus,
+.btn-grey.focus {
+  color: #fff;
+  background-color: #777;
+  border-color: #666;
+}
+.btn-grey:hover {
+  color: #fff;
+  background-color: #777;
+  border-color: #666;
+}

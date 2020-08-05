@@ -74,9 +74,9 @@ def creatTask(user, title, description, department, taskType, priority, owner, c
                 taskid = 'TK{:0>4d}{:0>4d}'.format(now.year, index + 1)
         createTime = now.strftime('%Y-%m-%dT%H:%M:%SZ')
         cmd = 'insert into tasks \
-            (id, title, department, tasktype, priority, owner, description, status, createby, createtime) \
-            values("{}", "{}", "{}", "{}", "{}", {}, "{}", "{}", {}, "{}") '.format(
-            taskid, title, department, taskType, priority, owner, description, 'C', createBy, createTime)
+            (id, title, department, tasktype, priority, owner, description, status, createby, createtime, updatetime) \
+            values("{}", "{}", "{}", "{}", "{}", {}, "{}", "{}", {}, "{}", "{}") '.format(
+            taskid, title, department, taskType, priority, owner, description, 'C', createBy, createTime, createTime)
         cursor.execute(cmd)
         conn.commit()
         return {
@@ -89,7 +89,8 @@ def creatTask(user, title, description, department, taskType, priority, owner, c
             'priority': priority,
             'owner': owner,
             'createBy': createBy,
-            'createTime': createTime
+            'createTime': createTime,
+            'updateTime': createTime
         }
     except Exception as e:
         print(e)
@@ -98,3 +99,46 @@ def creatTask(user, title, description, department, taskType, priority, owner, c
         if conn is not None:
             conn.close()
     return None
+
+
+def searchTasks(user: int, taskIdStartIndex: int, taskIdEndIndex: int, department: str, taskType: str, priority: str, owner: int, status: str):
+    accessibleDepartments = getAccessibleDepartments(user)
+    if not(department.upper() in accessibleDepartments):
+        return []
+    try:
+        conn = sqlite3.connect(databaseFilePath())
+        cmd = 'select (id, title, department, tasktype, priority, owner, description, status, createby, createtime, updateTime from tasks where \
+                id >= "TK{:0>8d}" and id <= "TK{:0>8d}" and department = "{}" '.format(taskIdStartIndex, taskIdEndIndex, department)
+        if taskType != "":
+            cmd = cmd + ' and taskType="{}"'.format(taskType)
+        if priority != "":
+            cmd = cmd + ' and priority="{}"'.format(priority)
+        if owner != 0:
+            cmd = cmd + ' and owner={}'.format(owner)
+        if status != "":
+            cmd = cmd + ' and status="{}"'.format(status)
+        cursor = conn.cursor()
+        cursor.execute(cmd)
+        tasks = []
+        for row in cursor:
+            task = {
+                'taskId': row[0],
+                'title': row[1],
+                'department': row[2],
+                'taskType': row[3],
+                'priority': row[4],
+                'owner': row[5],
+                'description': row[6],
+                'status': row[7],
+                'createBy': row[8],
+                'createTime': row[9],
+                'updateTime': row[10]
+            }
+            tasks.append(task)
+    except Exception as e:
+        print(e)
+        return []
+    finally:
+        if conn is not None:
+            conn.close()
+    return tasks
