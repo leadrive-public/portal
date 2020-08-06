@@ -123,7 +123,7 @@ def send_email(title, task_id, content):
                 to_addr.append(user.email)
 
             sendEmail(receivers=to_addr, subject=title,
-                      content=content, sender='etime@leadrive.com')
+                      content=content, sender='task@leadrive.com')
 
         print("邮件发送成功")
     except smtplib.SMTPException:
